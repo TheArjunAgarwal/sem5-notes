@@ -62,4 +62,93 @@ So our roadmap is: pick a parameter $k$ that could be natural or something more 
   Also, please make sure to not confuse this with *Dominating Set* (which is choosing vertices to put 1 edge radius umbrellas to cover everyone).
 ]
 
-While there are ways to 
+While vertex cover is NP Complete, we can see a simple algorithm that runs in $cal(O)^*(2^k)$ time (we can also do it in $cal(O)^*(1.4656^k)$ time as we'll later see and in $cal(O)^*(1.2529^k)$ as we shall not see).
+
+The idea is that given an edge, one of the two vertices neighboring it have to be in the vertex cover. This is a local property and can be abused to get the algorithm.
+
+#psudo(title: [Vertex Cover In $O(2^k n)$ time])[
+  + func existVertexCover($G, k$):
+    + pick edge $u v in V(G)$
+    + return existVertexCover( $G backslash {u}, k - 1$) OR existVertexCover( $G backslash {v}, k - 1$)
+]
+
+= Definitions
+#definition(title : "Classical Language")[
+Let $Sigma$ be a finite alphabet, for example $Sigma = {0,1}$ or $Sigma = "ASCII"$. A classical language over $Sigma$ is $L subset.eq Sigma^*$, for example $L = {"All valid Haskell programmes"}$.]
+#definition(title:"Parametrized Language")[
+A parametrized language over $Sigma$ is $L subset.eq Sigma^* times NN$, for example $L = {(x,k) | x "is a valid Haskell programme", k "is the nesting depth of the type declarations in" x}$.
+
+For a fixed $k$, $L_k = {(x,k) | (x,k) in L}$ is the $k$-th slice of $L$
+]
+
+#definition(title : "Slice-wise Polynomial Time (XP)")[
+  A parametrized language $L$ is slice-wise polynomial time solvable (XP) if there exists an algorithm $cal(A)$ and a computable function $f$ such that:
+  - For all $x, k$, $cal(A)$ runs in $<= |x|^f(k)$ time on input $(x,k)$
+  - $(x,k) in L <==> cal(A)((x,k)) = #text[*YES*]$
+]
+
+#definition(title : "Fixed Parameter Tractable (FPT)")[
+  A parametrized language $L$ is fixed parameter tractable (FPT) if there exists an algorithm $cal(A)$ and a computable function $f$ such that:
+  - For all $x,k$, $cal(A)$ runs in $<= f(k) |x|^c$ time on input $(x,k)$ where $c$ is a constant independent of $|x|$ and $k$.
+  - $(x,k) in L <==> cal(A)((n,k)) = #text[*YES*]$.
+]
+For notational convenience, $f(k) |x|^c$ is abbreviated $cal(O)^* (f(k))$.
+
+One motivation could be this table:
+#table(
+  columns: 4,
+  [$(n^(k+1))/(2^k n)$], [$n = 50$], [$n = 100$], [$n = 150$],
+  [$k=2$],[$625$],[$2500$],[$5625$],
+  [$k=3$],[$15625$],[$125000$],[$421875$],
+  [$k=10$],[$10^12$],[$8 times 10^13$],[$3.7 times 10^16$],
+  [$k=20$],[$1.8 times 10^26$],[$5 times 10^30$],[$2.1 times 10^35$]
+)
+
+= Exact Exponential Algorithms
+An example could be Hamiltonian Path.
+#definition(title: "Hamiltonian Path")[
+  Input: Given a graph $G$ and vertex $v in V$
+
+  Question: Does there exist a path $P$ starting at $v$ which covers all vertices of $G$ without repeating vertices or edges.
+]
+
+This problem is NP Hard, however using a DP on sets, we can do this in $cal(O)^* (2^n)$ instead of the brute force $cal(O)^*(n!)$.
+
+Another example is Chromatic Number
+#definition(title : "Chromatic Number")[
+  Input: Given a graph $G$ and $k in NN$
+
+  Question: Can we properly color the graph $G$ using $k$ colors
+]
+
+While there is a $O^*(2^k)$ algorithm, we can see an interesting and simple $O^*(3^k)$ algorithm.
+
+Consider all the subset of vertices and store all the independent sets (that means can be 1 colored). Now consider subsets of vertices and store all the ones that can be partitioned into independent sets (which will take $3^n$ time as we are basically 3 partitioning the vertices into $S = X union.sq Y$ and $V backslash S$) giving us the 2-colorable subsets. Repeat with $3$ coloring and so on. This will give an $underbrace(cal(O)^*(2^n)+cal(O)^*(3^n)+cal(O)^*(3^n)+dots+cal(O)^*(3^n), k "terms") = cal(O)^*(3^n)$.
+
+= Kernalization
+#todo[
+  Introduction with sorting and cycle detection idea
+]
+
+#example(title:"European Rail Network Problem")[
+  Given an input of $1,40,000$ trains, $25,000$ stations and $16,00,000$ single train stops (valid trains and station pairs).
+
+  Our question is if there is any subset $T$ of trains, they wanted to find a smallest set $S$ of stations such that each train $T$ stops at atleast one of the stations in $S$.
+
+  This is roughly equivalent to the red-blue dominating set which is NP Hard. However, Karsten Werhe gave a set of reduction rules (similar to the cycle detection) that would split this into small cases which he could solve by hand.
+  #todo[
+    Section 4.6 of Fundamentals of Parametrized Complexity by Downey and Fellow
+  ]
+]
+
+This is a weird place as if we had a polynomial algorithm that could reduce the size of an NP problem by even 1 bit, we could just use the same algorithm to keep reducing it to 1 single bit (which would be the answer).
+
+So what do we do?
+
+#todo[Parmetrization of Kernal]
+#todo[Kernal of $cal(O)^*(k^2)$ for vertex cover]
+
+#thm[
+  A problem admits an FPT algorithm if and only if it admits a kernalization.
+]
+
