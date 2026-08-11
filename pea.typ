@@ -145,10 +145,80 @@ This is a weird place as if we had a polynomial algorithm that could reduce the 
 
 So what do we do?
 
-#todo[Parmetrization of Kernal]
-#todo[Kernal of $cal(O)^*(k^2)$ for vertex cover]
+#todo[Parametrization of Kernel]
 
-#thm[
-  A problem admits an FPT algorithm if and only if it admits a kernalization.
+For vertex cover, we can use the following reduction rules:
+- If there is a vertex $v$ of degree zero in $G$, then delete $v$ from $G$ to get $G'$. Output: $(G', k)$
+- If there is a vertex $v$ if degree $>= k+1$ in $G$, then delete $v$ from $G$ to get $G'$. Output: $(G', k-1)$
+
+Let $(hat(G), hat(k))$ be an instnce to which none of the reduction rules applies. We then brute force from there.
+
+We now need to prove:
+1. Yes $<==>$ Yes
+2. $|hat(G)| + hat(k) <= f(k)$ for some computable function of $k$.
+
+#proof[
+  #todo[]
 ]
 
+#definition(title: "Kernalization")[
+  Let $L subset.eq Sigma^* times NN$ be a parametrized language. A *kernalization* algorithm (also called *reduction to problem kernel*) for $L$ is an algorithm that given an instance $(x,k)$ runs in time polynomial in $(|x| + k)$ and outputs an instance $(x', k')$ such that
+  1. $|x'| + k' <= g(k)$ for some computable $g$
+  2. $(x,k) in L <==> (x', k') in L$
+  $(x',k')$ is called a kernel of $L$ of size $g(k)$.
+]
+
+#thm(title: "First Theorem of Parametrized Complexity")[
+  A computable parametrized language $L$ has an FPT algorithm if and only if it has a kernalization algorithm.
+]
+#proof[
+  Let there be a $O(f(x))$ (not necessarily polynomial) algorithm for the decision problem where $x$ is the size of problem.
+  $(<==)$ From the definition of kernalization, we can find the kernel in $O("poly"(|x| + k))$ time and then the solution in time bounded by $O(f(|x| + k)) <= O(f(g(k)))$ which has no factor of $n$ and hence, is an FPT.
+
+  $(==>)$ Suppose $cal(A)$ solves instance $(x,k)$ of $L$ in time $O(f(k) dot |x|^c)$.
+
+
+  #algo[Run $cal(A)$ on $(x, k)$ for $|x|^(c+1)$ steps
+    - If $cal(A)$ stops and returns an answer, return a trivial Yes or No instance
+    - Else: return $(x,k)$
+  ]
+
+It is clear that Yes $<==>$ Yes. What about the "$|x'| + k' <= g(k)$ for some computable $g$"?
+
+Well, as $cal(A)$ is an FPT with runtime $O(f(x) dot |x|^c)$, the fact the algorithm has not terminated tells us:
+$
+|x|^(c+1) = O(f(k) |x|^c)\
+=> |x|^(c+1) <= c_2 f(k) |x|^c\
+=> |x| <= c_2 f(k)\
+=> |x| = O(f(k))
+$
+
+Thus, $|x| + k = O(f(k) + k)$.
+
+Thus, we have a kernel of size $O(f(k) + k)$.
+]
+
+Notice, the FPT doesn't give a particularly useful kernalization. It is just a nice statement to say.
+
+== Planar Independent Set
+#definition(title : "Independent Set")[
+  Input: Given a graph $G$ and $k in NN$
+  
+  Question: Does there exist $S subset.eq V$ such that $|S| >= k$ such that $u,v in S <==> u v in.not E$?
+]
+
+While in the classical setting, this and vertex cover are twins; The same doesn't track here. If we reduce to vertex cover, we have a $O^* (2^(n-k))$ algorithm which is not FPT.
+
+Sadly, there is no FPT using the standard parametrization as the problem is $W[1]$ hard with respect to $k$.
+
+However, if we restrict to the planar case, we can however have a kernel.
+
+#definition(title : "Planar Independent Set")[
+  Input: Given a planar graph $G$ and $k in NN$
+  
+  Question: Does there exist $S subset.eq V$ such that $|S| >= k$ such that $u,v in S <==> u v in.not E$?
+]
+
+While this NP Hard (even on bounded degree), we now have a linear kernel (and hence, FPT) on the standard parametrization: if $|V| >= 4 k$ then by 4 color theorem, return *Yes*. Otherwise, return $(G, k)$.
+
+This is sometimes called a _cheat_ kernel as we don't really find out much about the problem.
