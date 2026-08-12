@@ -222,3 +222,57 @@ However, if we restrict to the planar case, we can however have a kernel.
 While this NP Hard (even on bounded degree), we now have a linear kernel (and hence, FPT) on the standard parametrization: if $|V| >= 4 k$ then by 4 color theorem, return *Yes*. Otherwise, return $(G, k)$.
 
 This is sometimes called a _cheat_ kernel as we don't really find out much about the problem.
+
+= Feedback Vertex Set
+#definition(title : "Feedback Vertex Set")[
+  Input: Given an undirected graph $G$ on $n$ vertices, $k in NN$.
+
+  Parameter: $k$
+
+  Question: Does $G$ contain a set $S$ of size $<= k$ such that $G-S$ has no cycles.
+]
+
+We call $S subset.eq V(G)$ is a feedback vertex set of $G$ if and only if $G - S$ is acyclic.
+
+The idea is similar to vertex cover. We first delete all degree 0 and 1 vertices.
+
+Now that we have a graph with degree atleast 2, there must either be a 
+#todo[]
+
+#thm[
+  If $n < (2 log_2 n)^k$ then:
+    $
+    (2 log_2 n)^k < (4 k log_2 n)^k
+    $
+    #todo[hain]
+]
+#proof[#todo[hain]]
+
+= Feedback Arc Set
+#definition(title: "Feedback Arc Set in Tournament")[
+  Input: Given a tournament $T$ on $n$ vertices, $k in NN$
+
+  Parameter: $k$
+
+  Question: Does $T$ contain an arc set $F$ of size $<= k$, such that $T - F$ has no directed cycle?
+]
+
+Such a $F$ is called a feedback arc set of tournament $T$.
+
+We can begin with getting rid of all the clear winners (out-degree 0) and clear losers (in-degree 0).
+
+Now the tournament is guaranteed to have a cycle, we use the following claim:
+#claim[
+  An arc (and vertex) in a tournament is part of directed cycle if and only if it is part of a directed triangle.
+]
+#proof[
+  FTSOC let the arc $u v$ be part of a the shortest cycle $c$ which is not a triangle.
+
+  #todo[]
+]
+
+Similar to vertex cover, we would like to sort of have a rule to deal with arc's which are part of large number of triangle ($k$). But we can't delete it as otherwise the instance is no longer a tournament. So what do we do?
+
+#claim[
+  #todo[Reverse arc wala]
+]

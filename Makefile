@@ -1,5 +1,5 @@
 # List of .typ source files
-TYP_FILES = pea.typ
+TYP_FILES = pea.typ tagt.typ
 # Derive the corresponding PDFs in the Renders/ folder
 PDFS = $(TYP_FILES:%.typ=Renders/%.pdf)
 
