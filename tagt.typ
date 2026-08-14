@@ -122,3 +122,81 @@ which implies $lambda_1 (cal(L)) = 0$ with eigenvector $v1$.
 
   Thus, $lambda_2 > 0$.
 ]
+
+#cor[
+  The number of connected components of $G$ is equal to the multiplicity of $0$ as an eigenvalue of $L$.
+]
+
+We could define the multiplicity of $0$ as $k$ in $chi_(cal(L)) (t) = t^k q(t)$ where $t divides.not q$.
+
+ #example(title: "Eigenvalues of complete graph")[
+  $G = K_n$ (the complete graph)
+
+  What are the eigenvalue?
+ ]
+ #soln(title: "Solution(Mine)")[
+  $
+  cal(L) x = lambda x\
+  => (n-1) x_i - sum_(j != i) x_j = lambda x_i\
+  => n x_i - sum_(j) x_j = lambda x_i\
+  => "either" x_1 = x_2 = dots = x_n "or" lambda = n
+  $
+
+  As it is connected, the second eigenvalue can't be $0$. Thus, all other eigenvalues are $n$.
+ ]
+
+ #soln(title: "Prof. Priyavrat's Solution")[
+  As we have $n$ eigenvectors, then they form a eigenbasis.
+
+  Thus, for eigenvector $y$, $chevron.l y, v1 chevron.r = sum_(j) y_j = 0$.
+
+  $
+  => (cal(L) y)_i = n y_i - sum_(j) y_j\
+  = n y_i\
+  => cal(L) y = n y
+  $
+
+  Thus, $n$ is an eigenvalue with multiplicity $n-1$.
+ ]
+
+ #example(title: "Eigenvalues of Star Graph")[
+  Given $G = S_n$ (the star graph), What are the eigenvalue?
+ ]
+
+#soln[
+  #todo[]
+]
+
+= Laplacian Eigenmaps
+While we have 'barely scratched the surface' of spectral graph theory, we already have an application.
+
+In python's Scikit Learn's manifold learning we have a class *spectral embedding*. This is done by Belkins-Niyogi process (found in 2000).
+
+#prob[
+  Given data (a finite set of vectors) $ subset.eq RR^"high"$. find $Phi : RR^"high" -> RR^"low"$ preserving some property.
+]
+
+For example PCA preserves variance while LLE preserves neighborhoods.
+
+The high-level flowchart is:
+
+Data $->$ Data Graph (weighted to allow discrimination) $->$ Some eigenvalues of $L$ (equal to $"low"$) $->$ extract coordinates from these eigenvectors.
+
+Note, this doesn't preserve the original coordinates as we move from data to an abstract graph.
+
+#todo[Example]
+
+How do we find such coordinates?
+
+$"high" w_(i,j) => "low" |x_i - x_j|equiv "low" (x_i - x_j)^2$\
+$"low" w_(i,j) => "high" |x_i - x_j|equiv "high" (x_i - x_j)^2$
+
+This intuition can be formalized/translated to given optimization problem:
+
+$
+min_(x in RR^n) sum_(i, j) w_(i,j) (x_i - x_j)^2
+$
+
+which is nothing but $x^T cal(L) x$. To prevent $x_i = 0$ type solutions and simply scaled solutions, we can but $||x|| = 1$.
+
+Also, to prevent $v1$ (appropriately) scaled from returning as solution, we can just add $x in v1^T$. 

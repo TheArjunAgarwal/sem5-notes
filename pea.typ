@@ -259,7 +259,7 @@ Now that we have a graph with degree atleast 2, there must either be a
 
 Such a $F$ is called a feedback arc set of tournament $T$.
 
-We can begin with getting rid of all the clear winners (out-degree 0) and clear losers (in-degree 0).
+We could begin with getting rid of all the clear winners (out-degree 0) and clear losers (in-degree 0).
 
 Now the tournament is guaranteed to have a cycle, we use the following claim:
 #claim[
@@ -273,6 +273,54 @@ Now the tournament is guaranteed to have a cycle, we use the following claim:
 
 Similar to vertex cover, we would like to sort of have a rule to deal with arc's which are part of large number of triangle ($k$). But we can't delete it as otherwise the instance is no longer a tournament. So what do we do?
 
-#claim[
-  #todo[Reverse arc wala]
+#definition[
+  For a subset $F$ of arcs of $T$, let $T plus.o F$ be the tournament obtained from $T$ by reversing the arcs in $F$
 ]
+#claim[
+  If $T plus.o F$ is acyclic then $F$ is a feedback set of $T$
+]
+#claim[
+  If $F$ is an inclusion minimal feedback arc set of $T$ then $T plus.o F$ is acyclic. 
+]
+
+#todo[proof is hw]
+
+#cor[
+  If $(T,k)$ is an Yes instance of FAST $<==>$ there is a set $F$ of arcs of $T$, $|F| <= k$, such that $T plus.o F$ is acyclic. 
+]
+
+These gives us clear reduction rules (which are very similar to vertex cover):
+- #underline[*Reduction Rule 1*]: If $T$ has vertex $v$ which is not part of any triangle in $T$, return $(T - v, k)$
+- #underline[*Reduction Rule 2*]: If $T$ has an arc $e$ that is part of $>= k+1$ triangles, then return $(T plus.o {e}, k-1)$
+
+#todo[
+  Prove Validity of rule 2!
+]
+
+But why is this a valid kernel?
+#proof[
+If both the reduction rules fail and we are in a non-trivial instance, notice that every arc is part of atmost $k$ triangles and every vertex is part of a triangle.
+
+Hence, each arc covers atmost $k$ triangles. Thus, reversing an edge can 'destroy' atmost $k$ triangles which cover $k + 2$ vertices.
+
+Thus, if the instance has $ >k(k+1)$ vertices, we can return a No instance.
+]
+
+This gives us a $k^2 + 2k + k = O(k^2)$ kernel.
+
+#idea[
+  The usual idea in coming up with kernalization algorithms is to come up with reduction rules based on 'simple' cases. 
+
+  The way we come up with these rules is to find useful structures we can discover in polynomial time.
+
+  Some common structures are:
+  - Something that is definitely part of the solution
+  - Something that is definitely not part of optimal solution
+  - Something which we can replace with a smaller/simpler thing
+]
+
+Note, this same idea gives us a $O^*(3^k)$ FPT algorithm by branching on the triangles.
+
+$O^*(2^(O(sqrt(k) log(k))))$ is the best known bound for FAST by Alon, Lokshtanov and Saurabh in 2009.
+
+For FVS, the easy bound is $O^*(3^k)$. The iterated compression method gives $O^*(2^k)$ and the current best is $O^*(1.618^k)$ by Kumar#footnote[Another CMI person!] and Lokshtanov in 2016.
