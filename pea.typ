@@ -3,6 +3,8 @@
 #show: thm-rules
 
 #let pm = $plus.minus$
+#let langle = $chevron.l$
+#let rangle = $chevron.r$
 
 #show: noteworthy.with(
   paper-size: "a4",
@@ -324,3 +326,125 @@ Note, this same idea gives us a $O^*(3^k)$ FPT algorithm by branching on the tri
 $O^*(2^(O(sqrt(k) log(k))))$ is the best known bound for FAST by Alon, Lokshtanov and Saurabh in 2009.
 
 For FVS, the easy bound is $O^*(3^k)$. The iterated compression method gives $O^*(2^k)$ and the current best is $O^*(1.618^k)$ by Kumar#footnote[Another CMI person!] and Lokshtanov in 2016.
+
+= Feedback Vertex Set Revisited
+Once we make the reductions and have a graph $G$ left with degree atleast $3$, consider that if $X$ is a FVS and $G - X$ is a huge forest, then *every leaf in $G - X$ has to have a atleast 2 edges entering $X$.*
+
+So we would like atleast some high degree vertices in the $X$. We could formalize this as:
+
+#lem[
+  Let $V(G) = {v_1, v_2, dots, v_n}$ in non-increasing order of degree. 
+
+  Let $V_(3k)$ be the first $3k$ vertices in this order (with ties broken arbitrarily). Then, any FVS of $G$ of size $<= k$, must contain atleast one of the vertex of $V_(3k)$
+]
+#proof[
+#claim[
+  Let $X$ be any FVS of $G$. Then,
+  $
+  sum_(v in X) (deg(v) - 1) >= m - n + 1
+  $
+]
+
+#proof[
+  $\# "edges in" G-X <= n - |X| - 1$
+
+  $\# "other kind of edges" <= sum_(v in X) deg(v)$
+
+  Adding these, $m <= sum_(v in X) (deg(v) - 1) + n - 1 => sum_(v in X) (deg(v) - 1) >= m - n + 1$.
+]
+
+FTSOC, let $V_(3k) subset.eq V(G - X)$. Then,
+
+$
+sum_(v in V_(3k)) (deg(v) - 1)\
+>= 3 (sum_(v in X) (deg(v) - 1))\
+>= 3 (m - n +1)
+$
+
+Consider
+$
+sum_(v in.not V_(3k)) (deg(v) - 1) >= sum_(v in X) (deg(v) - 1)\
+>= m - n + 1
+$
+
+$
+sum_(v in V(G)) (deg(v) - 1) >= 4m - 4n + 4\
+2m - n >= 4m - 4n + 4
+$
+
+#todo[Clarify?!]
+
+Which is a contradiction.
+]
+
+This gives us a $O^*((3k)^k)$ algorithm.
+
+We can also have a randomized $O^*(4^k)$ algorithm.
+
+#todo[Photo from Image]
+
+= Crown Decomposition
+Notice, vertex cover was a high degree rule. It worked on high degree vertices. We might also note:
+- Degree 0 rule $~~>$ min degree $1$ graph: \# vertices in the resulting kernel $<= k+k^2$ 
+- Degree 1 rule $~~>$ min degree $2$ graph: \# vertices in the resulting kernel $<= k+k^2/2$ 
+- Degree 2 rule $~~>$ min degree $3$ graph: \# vertices in the resulting kernel $<= k+k^2/3$
+- $dots.v$ 
+
+
+#definition(title: "Matching")[
+  A Matching $M$ in Graph $G$ is a set of edges in $G$ of which no two share a common end-point.
+
+  A vertex subset $X subset.eq V(G)$ is *saturated* by matching $M$ is every vertex in $X$ has an edge in $M$ incident to it.
+]
+
+There is a (very, very non-trivial) polynomial time algorithm to find a maximal matching in a graph.
+
+#definition(title: "Crown Decomposition")[
+  A *Crown Decomposition* of a graph $G$ is a  of its vertex set $V(G)$ into three parts: $V(G) = C union.plus H union.plus B$ where:
+  + The *crown* C is non-empty independent set in $G$
+  + The set $E'$ of edges between $C$ and the *head* H contains a matching that *saturates* $H$.
+  + There are no edges with one end-point in $C$ nd the other in the *body* $B$.
+]
+
+#figure(image("pea-images/crown-decomposition.png", height: 30%))
+#claim[
+For vertex cover, if $langle C, H, B rangle$ is a crown decomposition of a graph $G$ then there is a smallest vertex cover of $G$ that contains *all* of $H$ and *none* of $C$.
+]
+
+#proof[
+  As there is a matching, *not taking all* of $H$ and taking *none* of $C$ will leave some edge where both it's neighbors are not in the vertex cover.
+
+  If we don't take all of $H$ and take *some* of $C$, we can have an equal or better instance by moving the 'guard' from a choosen $C$ to the $H$ it neighbors (can't happen that this doesn't occur as otherwise we have an edge that is not covered).
+]
+
+But to do any of that, we need to find the crown-decomposition which can't be polytime (unless $P = N P$). So what do we do?
+
+#thm(title: "Konnig's Theorem")[
+  There is a smallest vertex cover of a bipartite graph $B$, is equal to the size of a maximum matching of $B$. 
+  
+  There is a polynomial time algorithm that finds a largest matching, and a smallest vertex cover, on the input bipartite graph $B$
+]
+
+We now have an(other) algorithm for vertex cover.
+#psudo(title: [A $O^*(3k)$ kernel for Vertex Cover])[
+  + Find maximal matching $M$ of $G$. 
+    + If $|M| > k$ then: return *No*
+  + Let $V_m$ be the set of all vertices involved in $M$. Then $I = (V(G) backslash V_m)$ is an independent set.
+    + If $|I| <= k$ then return $(G, k)$
+  + So: $|I| > k$. Let $B$ be the bipartite graph induced by $V_m union.plus I$. Find a largest matching $tilde(M)$ and a smallest vertex cover $tilde(S)$ of $B$.
+    + If $|tilde(M)| > k$ then return *No*
+  + Let $C$ be the set of vertices in $I$ that are *not* in $tilde(S)$, $H$ be the set of vertices of $V_m$ that *are* in $tilde(S)$ and let $B = V(G) backslash (C union H)$ be the body.
+    +  return $((G backslash C union H), k - |H|)$
+]
+
+Our penultimate step indeed choose a crown decomposition as:
++ $C$ is non-empty and independent (as subset of $I$)
++ $H$ is saturated by a matching from $C$ (otherwise, violates vertex cover property)
++ There are no edges with one end-point in $C$ and the other in *body* $B$ (otherwise, violates vertex cover or induced bipartite).
+
+#remark[
+  There is a linear programme to find a crown decomposition $langle C, H, B rangle$ such that $G backslash C union H$ has no crown decomposition.
+
+  Furthermore, if $langle C_1, H_1, B_1 rangle, langle C_2, H_2, B_2 rangle, dots, langle C_k, H_k, B_k rangle$ are the crown decompositions of $G, G backslash C_1 union H_1, dots, G backslash (C_1 union C_2 union dots union C_(k-1)) union (B_1 union B_2 union dots union B_(k-1))$ respectively, then $langle union.big C_i, union.big B_i, G backslash (union.big C_i) union (union.big B_i)$ is a crown decomposition.
+]
+
