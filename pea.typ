@@ -123,7 +123,7 @@ Another example is Chromatic Number
   Question: Can we properly color the graph $G$ using $k$ colors
 ]
 
-While there is a $O^*(2^k)$ algorithm, we can see an interesting and simple $O^*(3^k)$ algorithm.
+While there is a $cal(O)^*(2^k)$ algorithm, we can see an interesting and simple $cal(O)^*(3^k)$ algorithm.
 
 Consider all the subset of vertices and store all the independent sets (that means can be 1 colored). Now consider subsets of vertices and store all the ones that can be partitioned into independent sets (which will take $3^n$ time as we are basically 3 partitioning the vertices into $S = X union.sq Y$ and $V backslash S$) giving us the 2-colorable subsets. Repeat with $3$ coloring and so on. This will give an $underbrace(cal(O)^*(2^n)+cal(O)^*(3^n)+cal(O)^*(3^n)+dots+cal(O)^*(3^n), k "terms") = cal(O)^*(3^n)$.
 
@@ -209,7 +209,7 @@ Notice, the FPT doesn't give a particularly useful kernalization. It is just a n
   Question: Does there exist $S subset.eq V$ such that $|S| >= k$ such that $u,v in S <==> u v in.not E$?
 ]
 
-While in the classical setting, this and vertex cover are twins; The same doesn't track here. If we reduce to vertex cover, we have a $O^* (2^(n-k))$ algorithm which is not FPT.
+While in the classical setting, this and vertex cover are twins; The same doesn't track here. If we reduce to vertex cover, we have a $cal(O)^* (2^(n-k))$ algorithm which is not FPT.
 
 Sadly, there is no FPT using the standard parametrization as the problem is $W[1]$ hard with respect to $k$.
 
@@ -321,11 +321,11 @@ This gives us a $k^2 + 2k + k = O(k^2)$ kernel.
   - Something which we can replace with a smaller/simpler thing
 ]
 
-Note, this same idea gives us a $O^*(3^k)$ FPT algorithm by branching on the triangles.
+Note, this same idea gives us a $cal(O)^*(3^k)$ FPT algorithm by branching on the triangles.
 
-$O^*(2^(O(sqrt(k) log(k))))$ is the best known bound for FAST by Alon, Lokshtanov and Saurabh in 2009.
+$cal(O)^*(2^(O(sqrt(k) log(k))))$ is the best known bound for FAST by Alon, Lokshtanov and Saurabh in 2009.
 
-For FVS, the easy bound is $O^*(3^k)$. The iterated compression method gives $O^*(2^k)$ and the current best is $O^*(1.618^k)$ by Kumar#footnote[Another CMI person!] and Lokshtanov in 2016.
+For FVS, the easy bound is $cal(O)^*(3^k)$. The iterated compression method gives $cal(O)^*(2^k)$ and the current best is $cal(O)^*(1.618^k)$ by Kumar#footnote[Another CMI person!] and Lokshtanov in 2016.
 
 = Feedback Vertex Set Revisited
 Once we make the reductions and have a graph $G$ left with degree atleast $3$, consider that if $X$ is a FVS and $G - X$ is a huge forest, then *every leaf in $G - X$ has to have a atleast 2 edges entering $X$.*
@@ -377,9 +377,9 @@ $
 Which is a contradiction.
 ]
 
-This gives us a $O^*((3k)^k)$ algorithm.
+This gives us a $cal(O)^*((3k)^k)$ algorithm.
 
-We can also have a randomized $O^*(4^k)$ algorithm.
+We can also have a randomized $cal(O)^*(4^k)$ algorithm.
 
 #todo[Photo from Image]
 
@@ -426,7 +426,7 @@ But to do any of that, we need to find the crown-decomposition which can't be po
 ]
 
 We now have an(other) algorithm for vertex cover.
-#psudo(title: [A $O^*(3k)$ kernel for Vertex Cover])[
+#psudo(title: [A $cal(O)^*(3k)$ kernel for Vertex Cover])[
   + Find maximal matching $M$ of $G$. 
     + If $|M| > k$ then: return *No*
   + Let $V_m$ be the set of all vertices involved in $M$. Then $I = (V(G) backslash V_m)$ is an independent set.
@@ -448,3 +448,68 @@ Our penultimate step indeed choose a crown decomposition as:
   Furthermore, if $langle C_1, H_1, B_1 rangle, langle C_2, H_2, B_2 rangle, dots, langle C_k, H_k, B_k rangle$ are the crown decompositions of $G, G backslash C_1 union H_1, dots, G backslash (C_1 union C_2 union dots union C_(k-1)) union (B_1 union B_2 union dots union B_(k-1))$ respectively, then $langle union.big C_i, union.big B_i, G backslash (union.big C_i) union (union.big B_i)$ is a crown decomposition.
 ]
 
+= An $cal(O)^*(2k)$ Kernel for Vertex Cover
+This will be 'optimal' in some sense as Unique Game Conjecture would be violated by, $2 - epsilon$ approximation and thus, a kernel better than $(2 - epsilon)k$ is not possible.
+
+We will proceed via ILP.
+#definition(title: "ILP of Vertex Cover")[
+  A variable $x_v$ for each vertex $v in V(G)$.
+
+  For each $u v in E(G) : x_u + x_v >= 1$.
+
+  For each $v in V(G)$, $x_v in {0,1}$
+
+  Minimize $sum_(v in V(G)) x_v$ subject to above.
+]
+
+We can relax the integral constraint to get a linear programme
+$
+0 <= x_v <= 1 "for all" v in V(G)
+$
+
+As we shall see in sometime (and blackbox for now), vertex cover's LP has the half-integrability property.
+
+#definition(title: "Half-Integrability")[
+  If an ILP admits an optimal solution where every variable takes one of the values ${0, 1/2, 1}$.
+]
+
+#figure(image("pea-images/half-lp-vc.png", width: 50%))
+
+This sort of looks like a crown decomposition already...
+
+#claim[
+  There is a matching saturating $V_1$ from $V_0$
+]
+#proof[
+  FTSOC, let there be no such matching. Then, by Hall's marriage lemma, there exists a $X subset.eq V_1$ such that $|N(X)| < |X|$ but then, reassign all variables in $N(X) union X$ as $1/2$ and that reduces the objective function.
+
+  This doesn't violate constraints as
+  - $X <--> N(X)$ as $1/2 + 1/2 = 1$
+  - $X <--> V_1/2$ as $1/2 + 1/2 = 1$
+  - $N(X) <--> V_1 backslash X$ as the vertex from $V_1 backslash X$ was already $1$ and $1/2 + 1 > 0 + 1 >= 1$.
+
+Thus, we have a contradiction as the solution was optimal.
+]
+
+Notice, $V_(1/2)$ has less than $2k$ vertices as otherwise the relaxed instance has objective greater than the ILP which implies the ILP doesn't admit a solution. Thus, we already have a $cal(O)^*(2k)$ kernel.
+
+= Sunflower Lemma
+Notice, crown decomposition is sort of a generalization of the degree one rule.
+#figure(image("pea-images/1d-crown.png", width: 50%))
+
+Similarly, the sunflower lemma is a generalization of the large degree rule.
+
+#definition(title: "Sunflower")[
+  Let $cal(U)$ be a finite universe and let $S_1, S_2, dots, S_t$ be subsets of $cal(U)$ when:
+  + There is a (possibly empty) set $C$ such that $(S_1 inter S_2) = C$ holds for all $1 <= i <= j <= t$ and
+  + $P_i = (S_i inter C)$ is non-empty for each $1 <= i <= t$.
+then $S_1, S_2, dots, S_t$ is. sunflower with core $C$ and petals $P_1, P_2, dots, P_t$.
+]
+
+Erdos had asked Rado (who was a kid then, literally eating cereal): Fix positive integers $k$ and $d$. Does just taking a large enough collection of distinct $d$-sized subsets of $cal(U)$, guarantee a sunflower with $k$ petals?
+
+Rado answered shortly after leading to the *Sunflower Lemma*.
+
+#thm(title: "Theorem (Sunflower Lemma, Erdos & Rado 1960)")[
+  Let $cal(A)$ be a family of $d$-sized sets (without duplicates) over a finite universe $cal(U)$. If $|A| > d! (k-1)^d$ then $cal(A)$ contains a sunflower with $k$ petals. Such a sunflower can be computed from $cal(A)$ in time polynomial $|cal(A)| + |cal(U)| + k$.
+]
