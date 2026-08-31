@@ -22,6 +22,8 @@
 = Philip's Wisdom
  "Why do you want to solve an algorithms problem, probably to make more money. Or kill more people. Or maybe save more people."
 
+ "They are a complexity theorist. They want nothing to do with algorithms."
+
 = Brief Intro and Motivation
 Parametrized Algorithms starts where the first algorithms course ends: NP Completeness.
 
@@ -513,3 +515,121 @@ Rado answered shortly after leading to the *Sunflower Lemma*.
 #thm(title: "Theorem (Sunflower Lemma, Erdos & Rado 1960)")[
   Let $cal(A)$ be a family of $d$-sized sets (without duplicates) over a finite universe $cal(U)$. If $|A| > d! (k-1)^d$ then $cal(A)$ contains a sunflower with $k$ petals. Such a sunflower can be computed from $cal(A)$ in time polynomial $|cal(A)| + |cal(U)| + k$.
 ]
+
+= Iterated Compression
+#todo[
+  Didn't go to class as sick and sleepy...
+]
+
+A $O^*(g(k))$ algorithm for the disjoint version $=>$ an $O^* (sum_(i=0)^k binom(k+i, i) g(k-i))$ algorithm for the original problem when $g(k) = alpha^k$. This gives $O^* ((alpha+1)^k)$.
+
+= Tournament Feedback Vertex Set
+#definition(title: "Tournament Vertex Set")[
+  Input: Given a tournament $cal(T)$ on $n$ vertices.
+
+  Parameter: $k$
+
+  Question: Is there a set $S subset.eq V(cal(T)), |S| <= k$, such that $T - S$ is acyclic?
+]
+
+#todo[What?!]
+
+= Randomized Algorithms
+A randomized algorithm can be thought of as a classical algorithm with access to a stream of random bits. If to solve a problem, the algorithm reads $r$ random bits, then we measure it's success over the $2^r$ possible bit strings.
+
+In the FPT world, most of the random algorithms we'll see will be *One Sided error Monte Carlo algorithm with false negatives*.
+
+#definition(title: "One Sided error Monte Carlo algorithm with false negatives")[
+  A random algorithm which always terminates in some bounded time and reports *NO* on all *NO* instances and *YES* on an *Yes* instance with probability $p in [0,1]$.
+]
+
+The reason we want one sided error is, say $p = 1/(f(k))$ for computable function $f$. Then if we repeat the algorithm $f(k)$ times.
+
+Then the probability that the algorithm gives a wrong (*NO*) every time is $(1-p)^(1/p) <= 1/e$. Thus, we have a constant error odds at the end.
+
+== Color Coding
+#definition(title: "Hamiltonian Path")[
+  Input: Given a graph $G$ on $n$ vertices
+
+  Question: Does $G$ have a (simple) path on $n$ vertices
+]
+
+#definition(title: "Simple Path")[
+  A (simple) path has no repeated vertices or edges.
+]
+
+This problem is known to be NP hard.
+
+A weaker(?) version of this problem is
+#definition(title: "c-Path")[
+  Input: Given a graph $G$ on $n$ vertices and a constant $c$, independent of the graph.
+
+  Question: Does $G$ have a path on $c$ vertices?
+]
+
+This can clearly be solved in $cal(O)(binom(n, c) c!) approx cal(O)(n^c c!)$ which is polytime. So at some point in between of constant and everything, we slip into NP.
+
+#definition(title: "k-Path")[
+  Input: Given a graph $G$ on $n$ vertices and a constant $k$, which could be dependent of the graph.
+
+  Question: Does $G$ have a path on $k$ vertices?
+]
+
+Monien in 1985 showed that k-path can be solved in $cal(O)^*(k!)$ time and hence, $k = (log(n))(log(log(n)))$ in $P$.
+
+Papedmirou and Yennakekku in 1997 conjectured that k-path is in $P$ for $k = o(log(n))$. This was proven by Alon, Yuster and Zwick in 1994 using this new technique called *Color Coding*.
+
+The problem with long path finding is that you sort of need to look at the path to find it. If I tell you that a graph has a small vertex cover, there is some structural property (sparseness) we have implied. Same with feedback vertex set. The issue is that I can take any random graph and affix a long path to it. This is what Alon, Yuster and Zwick had to deal with...
+
+To simplify this problem:
+#definition(title: "Rooted k-Path")[
+  Input: Given a graph $G$ on $n$ vertices, a specified starting vertex $s$ and a constant $k$, which could be dependent of the graph.
+
+  Parameter: $k$
+
+  Question: Does $G$ have a path of length $k$ that starts at $s$?
+]
+
+A naive algorithm could be to recurse on the neighbors of $s$ as: $
+"SOL"(G, s, k) = or.big_(v in N(s)) "SOL"(G - {s}, v, k-1)
+$
+
+We can get slightly better by DP. Consider a DP table $D$ where $D$ has one row for each vertex $v$ in $G$ and one column for each possible length $1 <= i <= k$.
+
+$D[v, i]$ stores all paths of length $i$ from $s$ to $v$ with $s$ and $v$ included.
+#todo[?]
+
+This leads to a $cal(O)(binom(n,k) n k)$ size table.
+
+We make the following simplification: each vertex of $G$ has one of the $k$ colors $c_1, c_2, dots, c_k$.
+
+Given this, look for a path that:
+- starts at $s$
+- has length $k$, and
+- has all the $k$ different colors
+
+We can solve this using the above DP by storing the subset of colors that has already been seen.
+
+This solves our problem in $cal(O)(2^k n k ) = cal(O)^* (2^k)$ time.
+
+But how do we do this coloring? Well, *randomly*!
+
+#idea[
+  If we randomly color the graph with the probability of vertex $v$ being colored $c_i$ being $1/k$ (uniformly).
+
+  Then, the odds of a $k$ path having different colors is $k^k/k! >= e^(-k)$ as $e^k = 1 + k + k^2/2! + dots + k^k/k! + dots => e^k >= k^k/k!$.
+
+  Thus, if we repeat the above with a random coloring, we get a constant probability random algorithm with runtime $cal(O)^*((2e)^k)$.
+]
+
+But these people didn't stop. We are using too much randomness as any subgraph of size $k$ in graph can be detected in this manner. Why be this general?
+
+#definition(title: "Perfect Hash Family")[
+  A set $cal(F)$ of functions from ${1, 2, dots, n}$ to ${1, 2, dots, k}$ is said to be a *$(n,k)$ perfect hash family* if, for any subset $S <= [n]$ of size $k$, there is a atleast one function $f in F$ such that $f$ is injective on $S$.
+]
+
+#thm(title: "Theorem (Alan et al)")[
+  For ay $n, k >= 1$ one can construct an $(n,k)$ perfect hash family of size $e^k k^(O(log k)) dot log(n)$ in time $e^k k^(cal(O)(log k)) dot n log n$.
+]
+
+We could just make the family and run the colorful path algorithm on the colorings induced by this family.
