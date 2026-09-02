@@ -56,29 +56,29 @@ The degree of vertex $i$ is number of edges containing said vertex, that is $d_G
 ]
 
 #definition(title : "Laplacian")[
-  The Laplacian of graph $G$ is $cal(L) = D - A$
+  The Laplacian of graph $G$ is $L = D - A$
 ]
 
 #definition(title : "Graph Energy")[
-  For $x in RR^n$, $x^T cal(L) x$ is called graph energy.
+  For $x in RR^n$, $x^T L x$ is called graph energy.
 ]
 
 #example[
-  Given a 2 path, $A = mat(0,1;1,0), D = mat(1,0;0,1) => cal(L) = mat(1, -1; -1, 1) => x^T cal(L) x = (x_1 - x_2)^2 >= 0$.
+  Given a 2 path, $A = mat(0,1;1,0), D = mat(1,0;0,1) => L = mat(1, -1; -1, 1) => x^T L x = (x_1 - x_2)^2 >= 0$.
 
-  Similarly, for a 3 path, $x^T cal(L) x = (x_1 - x_2)^2 + (x_2 - x_3)^2$
+  Similarly, for a 3 path, $x^T L x = (x_1 - x_2)^2 + (x_2 - x_3)^2$
 ]
 
 #thm[
   For a weighted graph,
   $
-  x^T cal(L) x = sum_((i,j) in E) w_(i,j) (x_i - x_j)^2
+  x^T L x = sum_((i,j) in E) w_(i,j) (x_i - x_j)^2
   $
 ]
 
 #proof[
   $
-  x^T cal(L) x &= x^T (D - W) x\
+  x^T L x &= x^T (D - W) x\
   &= x^T D x - x^T W x\
   &= sum d_i x_i^2 - (sum w_(i,j) x_i x_j)\
   &= sum d_i x_i^2 - 2 sum_((i,j) in E) w_(i,j) x_i x_j\
@@ -88,34 +88,34 @@ The degree of vertex $i$ is number of edges containing said vertex, that is $d_G
 ]
 
 #cor[
-  $cal(L)$ is Symmetric and Positive Semi-Definite.
+  $L$ is Symmetric and Positive Semi-Definite.
 ]
 
-This implies that $cal(L)$ has non-negative real Eigenvalues.
+This implies that $L$ has non-negative real Eigenvalues.
 
 #definition(title: "Spectrum of Laplacian")[
- We define $sigma(cal(L)) := {0 <= lambda_1 <= lambda_2 <= dots <= lambda_n}$ as the spectrum of $cal(L)$
+ We define $sigma(L) := {0 <= lambda_1 <= lambda_2 <= dots <= lambda_n}$ as the spectrum of $L$
 ]
 
 Let $v1 = (1,1,dots,1)^T$. Notice, $
-cal(L) v1 &= (D-W) vec(1,dots.v, 1) \
+L v1 &= (D-W) vec(1,dots.v, 1) \
 &= D vec(1, dots.v, 1) - W vec(1, dots.v, 1)\
 &= vec(d_1, dots, d_n) - vec(sum w_(1,j), dots, sum w_(n,j))\
 &= 0
 $
-which implies $lambda_1 (cal(L)) = 0$ with eigenvector $v1$.
+which implies $lambda_1 (L) = 0$ with eigenvector $v1$.
 
 #thm[
   $lambda_2 > 0 <==> G$ is connected
 ]
 #proof[
-  ($==>$) Assume $G =G_1 union.sq G_2$ which implies $cal(L)_G = mat(cal(L)_(G_1), 0; 0, cal(L)_(G_2))$.
+  ($==>$) Assume $G =G_1 union.sq G_2$ which implies $L_G = mat(L_(G_1), 0; 0, L_(G_2))$.
 
   This implies we have atleast 2 independent vectors: $vec(v1_(G_1), 0)$ and $vec(0, v1_(G_2))$ which have eigenvalue $0$ which makes $lambda_2 = 0$.
 
-  ($<==$) Suppose $G$ is connected. Let $y in ker(cal(L)_G)$.
+  ($<==$) Suppose $G$ is connected. Let $y in ker(L_G)$.
   $
-  ==> y^T cal(L) y &= sum_((i,j) in E) (x_i - x_j)^2\
+  ==> y^T L y &= sum_((i,j) in E) (x_i - x_j)^2\
   &= 0
   $
   This implies that $x_i = x_j <==> (i,j) in E$. Thus, if vertex $i$ and $j$ are connected, then by a series of equalities, we'll end up with $y = v1$.
@@ -127,7 +127,7 @@ which implies $lambda_1 (cal(L)) = 0$ with eigenvector $v1$.
   The number of connected components of $G$ is equal to the multiplicity of $0$ as an eigenvalue of $L$.
 ]
 
-We could define the multiplicity of $0$ as $k$ in $chi_(cal(L)) (t) = t^k q(t)$ where $t divides.not q$.
+We could define the multiplicity of $0$ as $k$ in $chi_(L) (t) = t^k q(t)$ where $t divides.not q$.
 
  #example(title: "Eigenvalues of complete graph")[
   $G = K_n$ (the complete graph)
@@ -136,7 +136,7 @@ We could define the multiplicity of $0$ as $k$ in $chi_(cal(L)) (t) = t^k q(t)$ 
  ]
  #soln(title: "Solution(Mine)")[
   $
-  cal(L) x = lambda x\
+  L x = lambda x\
   => (n-1) x_i - sum_(j != i) x_j = lambda x_i\
   => n x_i - sum_(j) x_j = lambda x_i\
   => "either" x_1 = x_2 = dots = x_n "or" lambda = n
@@ -151,9 +151,9 @@ We could define the multiplicity of $0$ as $k$ in $chi_(cal(L)) (t) = t^k q(t)$ 
   Thus, for eigenvector $y$, $chevron.l y, v1 chevron.r = sum_(j) y_j = 0$.
 
   $
-  => (cal(L) y)_i = n y_i - sum_(j) y_j\
+  => (L y)_i = n y_i - sum_(j) y_j\
   = n y_i\
-  => cal(L) y = n y
+  => L y = n y
   $
 
   Thus, $n$ is an eigenvalue with multiplicity $n-1$.
@@ -197,6 +197,163 @@ $
 min_(x in RR^n) sum_(i, j) w_(i,j) (x_i - x_j)^2
 $
 
-which is nothing but $x^T cal(L) x$. To prevent $x_i = 0$ type solutions and simply scaled solutions, we can but $||x|| = 1$.
+which is nothing but $x^T L x$. To prevent $x_i = 0$ type solutions and simply scaled solutions, we can but $||x|| = 1$.
 
 Also, to prevent $v1$ (appropriately) scaled from returning as solution, we can just add $x in v1^T$. 
+
+= Lecture 3?!
+
+= Lecture 4
+
+Given a graph $G$ with Laplacian $L$, we want to minimize $
+sum_(i, j) w_(i j) (y_i - y_j)^2 = 2 y^T L y
+$
+
+subject to $y^T D v1 = 0$ where $D$ is the diagonal matrix of degrees (keeping weights in mind) and $y^T D y = 1$.
+
+One can solve this using Lagrange Multipliers:
+$
+cal(L)(y , lambda, mu) = y^T L y - lambda (y^T D y - 1) - mu (y^T D v1)\
+
+=> (partial cal(L))/(partial y) = 2 L y - 2 lambda  D y - mu D v1 = 0\
+
+=> L y - lambda D y - mu/2 D v1 = 0\
+
+therefore L y = lambda D y + mu/2 D v1 quad quad (*)
+$
+
+Recall $v1^T L = 0$. Thus,
+
+$
+v1^T (L y - lambda D y - mu/2 D v1) = 0\
+=> - lambda v1^T D y - mu/2 v1^T D v1 = 0\
+=> mu/2 v1^T D v1 = 0 quad quad ("using our constraint!")\
+=> (mu/2) (sum d_i) = 0\
+=> mu = 0 quad quad ("as degrees are all positive")
+$
+
+going back to $(*)$
+$
+=> L y = lambda D y
+$
+
+This gives a 1-D embedding of $G$: $i |-> y_i$ which sort of preserves neighborliness.
+
+We call the first non-zero eigenvalue (the second one in connected graphs) is called the Fiedler vector and the value it assigns are called the Fiedler values.
+
+This is called a smooth graph signal by applied math people.
+
+However, why would we embed our graph in 1D? That seems naive and somewhat useless for large datasets.
+
+Now let's embed in $RR^m, m >= 2$.
+
+Let $y_1 = vec(y_1 (1), y_2(2), dots.v, y_1(n)), y_2 , dots y_m$.
+
+We say a node $i$ is mapped to $(y_1 (i), y_2 (i), dots, y_m (i)) = y^((i))$ which will be the rows of $Y = [y_1 | y_2 | dots | y_m]$.
+
+We would like to minimize
+$
+sum_(i, j in E) w_(i, j) ||y^((i)) - y^((j))||^2 
+$
+
+which is equal to
+$
+underbrace(tr(Y^T L Y), m times m "matrix")
+$
+
+subject to $Y^T D Y = I_m$ and $Y^T D v1 = 0$.
+
+We can solve using the same methods as above (albeit with more book keeping).
+
+#underline[The solution to the above problem is]
+$
+L Y = D Y Lambda, quad quad  Lambda = "diag"(lambda_2, lambda_3, dots, lambda_m)
+$ 
+
+where $lambda_2 <= lambda_3 <= dots <= lambda_m$.
+
+== Manifold Learning
+Spectral Embedding is an example on manifold learning. Some other examples are:
+#todo[]
+
+#definition(title: "The Manifold Hypothesis")[
+  The manifold hypothesis posits that many high-dimensional data sets that occur in the real world actually lie along low-dimensional latent manifolds inside that high-dimensional space.
+
+  or as Prof. Priyavrat says: "Data is high-dimensional but the number of "interesting"  intrinsic features is pretty less"
+]
+
+#remark[
+  A lot of versions of the above are sloppier and say stupid things like: "all high-dimensional data can be embedded in a low-dimensional manifold"
+
+  This is false, sloppy and stupid.
+]
+
+#definition(title: "Manifold")[
+  A manifold $M$ is a subset of $RR^n$ which is locally flat.
+
+  Given any $p in M$, there exists an open ball $U$ containing $p$ and a map $phi : U -> RR^d$ such that $phi(p) = 0$ and $phi(U)$ is open ball containing $0$ in $RR^d$.
+
+  $phi : U -> phi(U)$ is a homeomorphism.
+
+  The pair $(U, phi)$ is called a chart around $p$.
+
+  Furthermore, if $(U, phi)$ and $(V, psi)$ are 2 charts around $p$ then $phi compose psi^(-1)$ and $psi compose phi^(-1)$ are smooth maps from subsets of $RR^d$ to open subsets of $RR^d$.
+]
+
+#idea[
+  The idea is the manifolds are locally Euclidean. Euclidean is really nice as we have a calculus over it.
+
+  What does locally Euclidean mean? That we can sort of treat every point as an origin and induce a coordinate system around it. Like sort of Earth is round, but locally, it is flat and every point feels like the centre.
+
+  But there could be more than one coordinate system. Thus, we want some way to translate between these coordinate systems.
+]
+
+#todo[Prof. Priyavrat's diagram]
+
+Let's look at a manifold without a global coordinate system.
+
+#example(title: [The Unit Circle in $RR^2$])[
+  #figure(image("tagt-images/unit_circle.png"))
+]
+
+#definition(title: "Riemannian Manifold")[
+  A manifold with a Riemannian metric (a way to measure length) is called a Riemannian Manifold.
+
+  Basically, Riemannian metric assigns to each point a definition of inner product (which is a symmetric bilinear form). This makes Riemannian metric a tensor.
+]
+
+Basically, given data, we want to find the best fitting Riemannian Manifold to embed said data in.
+
+$
+cal(C)^(oo) (M)= {f : M -> RR, f "is smooth"} ~ F(G, RR)
+$
+
+where the former is $cal(C)^(oo)(M)$ is an infinite dimensional vector space while $F(G, RR)$'s vector space is $RR^n$.
+
+Also,
+
+$
+gradient f|_p = ((partial f)/(partial x_1) |_p, (partial f)/(partial x_2) |_p, dots, (partial f)/(partial x_n) |_p)
+$
+
+the divergence $gradient f$ measures local spread of a $v f$
+
+The Laplace-Beltrami operator $Delta_g : cal(C)^(oo) (M) ->^"lin" cal(C)^(oo)(M)$ with
+$
+Delta_g (f) := "div"(gradient f)
+$
+
+measures the difference between between $f(p)$ and avg $f$ value. 
+
+Notice, $Delta_g (f) > 0 equiv f(p) < "avg value"$
+
+Sort of corresponds to the Laplacian in the discrete case.
+
+We can also use Laplace-Beltrami to get a Hammel Basis for the infinite dimensional vector space
+$
+Delta_g psi = lambda_i psi => i in NN, {psi_1, psi_2, dots, psi_n }
+$
+
+This implies $M arrow.r.hook cal(C)^(oo)(M)$ with $p |-> {psi_1, psi_2, dots, psi_n}$.
+
+Belkin-Niyogi proved that (under some constraints) as vertices go to infinity, the laplacian converges to Laplace-Beltrami operator on some manifold.
