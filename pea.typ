@@ -730,5 +730,5 @@ But we can be faster. Consider coloring all the vertices. A good coloring has th
 This gives the odds of a good coloring to be $1/(2^(q+k))$ and hence, an algorithm in $cal(O)^*(2^(q + k))$ time.
 
 #remark[
-  This would probably be publishable in 2006 but Marx didn't know about random separation and now this is a classic exercise in the textbook.
+  This would probably be publishable in 2006 or 2007 but Marx didn't know about random separation and now this is a classic exercise in the textbook (and has no other reference).
 ]
