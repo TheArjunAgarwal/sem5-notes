@@ -577,7 +577,7 @@ This can clearly be solved in $cal(O)(binom(n, c) c!) approx cal(O)(n^c c!)$ whi
 
 Monien in 1985 showed that k-path can be solved in $cal(O)^*(k!)$ time and hence, $k = (log(n))(log(log(n)))$ in $P$.
 
-Papedmirou and Yennakekku in 1997 conjectured that k-path is in $P$ for $k = o(log(n))$. This was proven by Alon, Yuster and Zwick in 1994 using this new technique called *Color Coding*.
+Papedmirou and Yennakekku in 1993 conjectured that k-path is in $P$ for $k = o(log(n))$. This was proven by Alon, Yuster and Zwick in 1994 using this new technique called *Color Coding*.
 
 The problem with long path finding is that you sort of need to look at the path to find it. If I tell you that a graph has a small vertex cover, there is some structural property (sparseness) we have implied. Same with feedback vertex set. The issue is that I can take any random graph and affix a long path to it. This is what Alon, Yuster and Zwick had to deal with...
 
@@ -632,4 +632,103 @@ But these people didn't stop. We are using too much randomness as any subgraph o
   For ay $n, k >= 1$ one can construct an $(n,k)$ perfect hash family of size $e^k k^(O(log k)) dot log(n)$ in time $e^k k^(cal(O)(log k)) dot n log n$.
 ]
 
-We could just make the family and run the colorful path algorithm on the colorings induced by this family.
+We could just make the family and run the colorful path algorithm on the colorings induced by this family. This would still give an (un-randomized) algorithm in $cal(O)^*((2 e)^k)$.
+
+In the 1993 paper by Papedmirou and Yennakekku, all open problems have been solved; other than one.
+#todo[Arvind and others have work on it to show if]
+
+== Random Separation
+Cyan et al came up with the idea to perhaps use only 2 colors: one for the object we are trying to find and the other to separate it.
+
+#idea[
+  If we want to find an object $X$ inside an input instance and we color the entire instance with $2$ colors (say #text(red)[red] and #text(green)[green]) uniformly at random, then the probability that "our" object gets colored with green is $1/(2^(|X|)).$ This is "fpt" is $|X| <= f(k)$
+]
+
+#definition(title: "Subgraph Isomorphism")[
+  Input: Given graphs $G, H$ where $|V(H)| = k, |V(G)| = n$
+
+  Parameter: k
+
+  Question: Is $H$ a subgraph of $G$?
+]
+#definition(title: "Clique")[
+  Input: Given a graph $G$ and integer $h$ where $|V(G)| = n$
+
+  Parameter: h
+
+  Question: Is there a $h$-clique as a subgraph of $G$?
+]
+
+Both of these are not expected to be in FPT as they are W[1] hard (Hardness of Clique $=>$ Hardness of Subgraph Isomorphism)
+
+However, if the degree of $G$ is bounded, we can solve it using *random separation*!
+
+#definition(title: "Subgraph Isomorphism with degree bounded")[
+  Input: Given graphs $G, H$ where $|V(H)| = k, |V(G)| = n$ and $max_(v in V(G)) deg(v) = d$
+
+  Parameter: k, d
+
+  Question: Is $H$ a subgraph of $G$?
+]
+
++ Color every edge of $G$ green or red, with probability $1/2$ each.
++ let $chi : E(G) -> {"red", "green"}$ be the resulting coloring
++ Let $H'$ be an (unknown) copy of $H$ inside $G$. Let $Y$ be the set of edges that are: incident on a vertex of $V(H')$ and are not in $E(H')$.
+
+Can $Y$ have edges, both of whose end-points are in $V(H')$? Yes! These are the edges not in $V(H')$ as $H$ is not necessarily a clique.
+
+Say $chi$ is a good if every edge of $E(H)$ is green and every edge in $Y$ is red.
+
+#claim[
+  If $H$ is connected, then $H'$ will be equal to one of the connected components of the 'green' subgraph defined by a good coloring $chi$.
+]
+
+So we can delete the red edges and then look at the $k$ sized connected components.
+
+$
+PP("a random coloring is good") = 1/(2^(|E(H')|) dot 2^(|Y|))
+$
+
+as we want all edges of $H'$ to be green and all edges in $Y$ to be red. As the degree is bounded and $E(H')$ and $Y$ are incident on $V(H')$. Thus, $E(H') + |Y| = k d$. Thus,
+
+$
+PP("a random coloring is good") >= 1/(2^(k d))
+$
+
+Thus, we can solve the problem (for connected $H$) by doing a uniform random coloring of edges to red or green, deleting red edges, checking connected components of size $k$ for isomorphism and repeating if failed.
+
+Isomorphism takes $O(k! k)$ time (brute force) or $O(k^(O(d log d)))$ as bounded degree (from Luki 1982).
+
+We can extend this to a disconnected $H = H_1 union H_2 union dots union H_m$. After deleting the red edges, look for a component to match to (is isomorphic to) $H_1$, then $H_2$ and so on.
+
+#thm[
+  There are Monte Carlo algorithms with false negatives that solve bounded degree subgraph isomorphism in $cal(O)^*(2^(d k) k!)$ and $cal(O)^*(2^(d k) k^(cal(O)(d log d)))$
+]
+
+ #todo[
+  thank god for OCR (from photo on phone)
+ ]
+
+ We can also use this on graphs without bounded degree.
+
+ #definition(title: [Cutting of $q$ Connect Vertices])[
+  Input: Given a graph $G$ on $n$ vertices, $q, k in NN$
+
+  Parameter: $q + k$
+
+  Question: Is there a set $X subset.eq V(G)$ with $|X| <= k$ such that $G - X$ has a connected component with exactly $q$ vertices?
+ ]
+
+ The problem was introduced by Danial Marx in 2006 and is known to be W[1]-hard for $q$ or $k$ alone. Marx also gave a $cal(O)^*((q+k)^(cal(O)(q)))$ algorithm in 2006.
+
+ Let $Y$ be a connected component of size $q$ in $G - X$.
+
+Color all edges and a good coloring is such that all edges of $Y$ are green and all of $X$ to $Y$ are red (everything else is immaterial). This gives a $1/ (q^2 + k q)$ odds of good coloring and hence a $cal(O)^*(k^2 + k q)$ algorithm.
+
+But we can be faster. Consider coloring all the vertices. A good coloring has the $Y$ vertices be green and $X$ be red. Then, we can delete the red-green edges and check for a connected component.
+
+This gives the odds of a good coloring to be $1/(2^(q+k))$ and hence, an algorithm in $cal(O)^*(2^(q + k))$ time.
+
+#remark[
+  This would probably be publishable in 2006 but Marx didn't know about random separation and now this is a classic exercise in the textbook.
+]

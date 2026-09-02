@@ -1,0 +1,768 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+
+\hypersetup{
+  colorlinks=false,
+  hidelinks
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.5em}
+\setlist[enumerate]{leftmargin=1.7em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textsc{Lecture 1}}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\ket}[1]{\lvert #1\rangle}
+\newcommand{\bra}[1]{\langle #1\rvert}
+\newcommand{\braket}[2]{\langle #1\mid #2\rangle}
+\newcommand{\Prob}{\operatorname{Pr}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Lecture 1}\\[0.35em]
+  {\large September 24, 2025}
+\end{center}
+
+\hrule
+\vspace{0.8em}
+
+\section{The Two Faces of Quantum Computation}
+
+There are two complementary aspects of quantum computation:
+
+\begin{enumerate}
+  \item \textbf{The theoretical model of quantum computation.}
+  \begin{itemize}
+    \item An idealized, consistent, plausible description of reality.
+    \item ``Implementation agnostic.''
+    \item A testbed for algorithm design and proving impossibility results.
+  \end{itemize}
+
+  \item \textbf{Implementations of quantum computation.}
+  \begin{itemize}
+    \item Superconducting qubits, photonic systems, neutral atoms, etc.
+    \item Models in which we hope to simulate the idealized model.
+    \item Not the main focus of this class, but pertinent to the implementation
+          and manipulation of quantum information.
+  \end{itemize}
+\end{enumerate}
+
+An example of quantum-computing advantage.
+
+\section{Notation}
+
+We express vectors over $\C^d$ as
+\[
+  \ket{v}
+  =
+  \begin{pmatrix}
+    v_0\\
+    v_1\\
+    \vdots\\
+    v_{d-1}
+  \end{pmatrix}.
+\]
+
+Because of its prevalence, we write
+\[
+  \ket{v}
+  =
+  v_0\ket{0}+v_1\ket{1}+\cdots+v_{d-1}\ket{d-1}.
+\]
+
+The complex conjugate is denoted by $(\cdot)^*$.
+
+For vectors,
+\[
+  \bra{v}
+  =
+  \begin{pmatrix}
+    v_0^* & v_1^* & \cdots & v_{d-1}^*
+  \end{pmatrix},
+\qquad
+  \braket{v}{v}
+  =
+  \sum_{j=0}^{d-1}|v_j|^2.
+\]
+
+\textbf{Questions for class.}
+\begin{enumerate}
+  \item What is $\braket{1}{1}$?
+  \item Let $M=\ket{1}\bra{1}$ (short form $|1\rangle\langle1|$).
+        For unit vectors $\ket{v}$, what is $M\ket{v}$?
+\end{enumerate}
+
+\section{Axiom 1: State Description}
+
+The state of exactly one qubit can be expressed as a vector in $\C^2$
+of unit norm:
+\[
+  \ket{\psi}
+  =
+  \begin{pmatrix}
+    \alpha\\
+    \beta
+  \end{pmatrix},
+  \qquad
+  |\alpha|^2+|\beta|^2=1.
+\]
+
+Define
+\[
+  \ket{0}=
+  \begin{pmatrix}
+    1\\0
+  \end{pmatrix},
+  \qquad
+  \ket{1}=
+  \begin{pmatrix}
+    0\\1
+  \end{pmatrix}.
+\]
+
+Note that
+\[
+  \braket{0}{1}=0.
+\]
+
+These form an orthonormal basis for $\C^2$ and are possible states for a qubit.
+
+If the state of a qubit is either $\ket{0}$ or $\ket{1}$, we call it
+\emph{classical}. For example,
+\[
+  \ket{0}+\ket{1}
+  =
+  \begin{pmatrix}
+    1\\1
+  \end{pmatrix}
+\]
+(up to normalization) is a non-classical, i.e.\ ``quantum,'' possible state.
+
+\section{Axiom 2: Transformation of a Qubit}
+
+A quantum transformation is represented by a unitary matrix $U$:
+\[
+  \ket{\psi}\longmapsto U\ket{\psi}.
+\]
+
+For a unitary matrix,
+\[
+  U^\dagger U=I,
+\]
+and consequently a unit vector remains a unit vector:
+\[
+  \|U\ket{\psi}\|=\|\ket{\psi}\|.
+\]
+
+\section{Single-Qubit Gates}
+
+Important examples include:
+
+\[
+  X=
+  \begin{pmatrix}
+    0&1\\
+    1&0
+  \end{pmatrix}
+  \qquad\text{``bit flip,''}
+\]
+
+\[
+  Z=
+  \begin{pmatrix}
+    1&0\\
+    0&-1
+  \end{pmatrix}
+  \qquad\text{``phase flip,''}
+\]
+
+and the Hadamard gate
+\[
+  H=
+  \frac{1}{\sqrt2}
+  \begin{pmatrix}
+    1&1\\
+    1&-1
+  \end{pmatrix}
+  \qquad\text{``Hadamard.''}
+\]
+
+\section{Axiom 3: Measurement / Born's Rule}
+
+Given a quantum state
+\[
+  \ket{\psi}
+  =
+  \alpha\ket{0}+\beta\ket{1}
+  =
+  \begin{pmatrix}
+    \alpha\\
+    \beta
+  \end{pmatrix},
+\]
+we can measure the quantum state.
+
+The probability of observing $0$ is
+\[
+  \Prob(0)=|\alpha|^2,
+\]
+in which case the state collapses to $\ket{0}$.
+
+The probability of observing $1$ is
+\[
+  \Prob(1)=|\beta|^2,
+\]
+in which case the state collapses to $\ket{1}$.
+
+The classical value ``0'' or ``1'' is output.
+
+\subsection{Repeated Measurement}
+
+If the state is $\ket{0}$ or $\ket{1}$, measurement does not change the state.
+Hence $\ket{0}$ and $\ket{1}$ behave as classical values: measurement /
+observation does not change the state.
+
+\section{Global Phase}
+
+Consider the states
+\[
+  \ket{\psi}
+  \quad\text{and}\quad
+  e^{i\theta}\ket{\psi}.
+\]
+
+These states cannot be distinguished by measurement. For example,
+\[
+  \Prob\!\left[
+    e^{i\theta}\ket{\psi}\text{ collapsing to }\ket{j}
+  \right]
+  =
+  \left|\bra{j}e^{i\theta}\ket{\psi}\right|^2
+  =
+  \left|e^{i\theta}\bra{j}\ket{\psi}\right|^2
+  =
+  |\bra{j}\ket{\psi}|^2.
+\]
+
+Thus $e^{i\theta}$ is called the \emph{global phase}, and quantum states
+form an equivalence class
+\[
+  \ket{\psi}\sim e^{i\theta}\ket{\psi}.
+\]
+
+The set of physical pure states is therefore the corresponding quotient
+space (projective Hilbert space).
+
+\section{Axiom 4: Initialization}
+
+We can initialize a qubit as
+\[
+  \ket{\psi_0}=\ket{0}.
+\]
+
+These axioms already imply a perfect random-number generator.
+
+\begin{enumerate}
+  \item Initialize the qubit as $\ket{\psi_0}=\ket{0}$.
+  \item Apply the Hadamard transform:
+  \[
+    \ket{\psi_1}
+    =
+    H\ket{0}
+    =
+    \frac{1}{\sqrt2}\bigl(\ket{0}+\ket{1}\bigr).
+  \]
+  \item Measure the qubit:
+  \[
+    \Prob(0)=\frac12,
+    \qquad
+    \Prob(1)=\frac12.
+  \]
+\end{enumerate}
+
+\section{Multiple Qubits}
+
+Recall the notion of tensor products.
+
+For matrices $A$ and $B$,
+\[
+  A\otimes B
+\]
+is the Kronecker (tensor) product. If
+$A=(a_{ij})$ and $B=(b_{kl})$, then
+\[
+  A\otimes B
+  =
+  \begin{pmatrix}
+    a_{11}B & \cdots & a_{1n}B\\
+    \vdots  & \ddots & \vdots\\
+    a_{m1}B & \cdots & a_{mn}B
+  \end{pmatrix}.
+\]
+
+\subsection{Properties of the Tensor Product}
+
+For compatible matrices,
+\begin{enumerate}
+  \item Associativity:
+  \[
+    (A\otimes B)\otimes C
+    =
+    A\otimes(B\otimes C).
+  \]
+  \item Linearity:
+  \[
+    (A\otimes B)(C\otimes D)
+    =
+    (AC)\otimes(BD).
+  \]
+  \item Transpose:
+  \[
+    (A\otimes B)^T=A^T\otimes B^T.
+  \]
+  \item Conjugate transpose:
+  \[
+    (A\otimes B)^\dagger
+    =
+    A^\dagger\otimes B^\dagger.
+  \]
+  \item When invertible,
+  \[
+    (A\otimes B)^{-1}
+    =
+    A^{-1}\otimes B^{-1}.
+  \]
+\end{enumerate}
+
+We can also take tensor products of vectors, since vectors are $1$-D matrices.
+
+\subsection{Exercises}
+
+\begin{enumerate}
+  \item What is $\ket{0}\otimes\ket{1}$?
+  \item What is $\ket{0}\otimes\ket{0}\otimes\ket{1}$?
+\end{enumerate}
+
+\section{Computational-Basis Notation}
+
+We use the shorthand
+\[
+  \ket{0}\ket{1}\ket{0}
+  =
+  \ket{010}.
+\]
+
+More generally,
+\[
+  \ket{x_1x_2\cdots x_n},
+  \qquad x_i\in\{0,1\},
+\]
+denotes the computational-basis state whose bit string is
+$x_1x_2\cdots x_n$.
+
+For $j\in\{0,\ldots,2^n-1\}$, we write
+\[
+  \ket{j}
+\]
+for the basis vector corresponding to the binary representation of $j$.
+
+Equivalently,
+\[
+  \ket{j}
+  =
+  \ket{j_1j_2\cdots j_n},
+\]
+where $j_1j_2\cdots j_n$ is the $n$-bit binary representation of $j$.
+These basis states are orthogonal:
+\[
+  \braket{j}{k}=\delta_{jk}.
+\]
+
+For $\ket{j}\in\C^d$,
+\[
+  \ket{j}
+  =
+  \begin{pmatrix}
+    0\\
+    \vdots\\
+    1\\
+    \vdots\\
+    0
+  \end{pmatrix},
+\]
+with the $1$ in the $j$th position (up to the indexing convention).
+
+\section{Bringing Multiple Qubits Together}
+
+Suppose qubit $A$ is in state $\ket{\psi_A}$ and qubit $B$ is in state
+$\ket{\psi_B}$. We describe the state of the two qubits by
+\[
+  \ket{\psi_{AB}}
+  =
+  \ket{\psi_A}\otimes\ket{\psi_B}.
+\]
+
+We need axioms to describe the composite system.
+
+\begin{enumerate}
+  \item If qubits do not interact, the description should reproduce the
+        statistics of the individual qubits.
+  \item There must be a method for entangling the qubits; i.e.\ for any
+        desired state there should exist a method of generating that state.
+\end{enumerate}
+
+\section{Axioms for $n$ Qubits}
+
+\begin{enumerate}
+  \item The state of an $n$-qubit system is a unit vector in
+  \[
+    (\C^2)^{\otimes n}
+    \cong \C^{2^n},
+  \]
+  the $n$-fold tensor-product Hilbert space.
+
+  Every quantum state is therefore of the form
+  \[
+    \ket{\psi}
+    =
+    \sum_{x\in\{0,1\}^n}\alpha_x\ket{x},
+    \qquad
+    \sum_x|\alpha_x|^2=1.
+  \]
+
+  \item For any unitary $U\in\C^{2^n\times2^n}$, we can transform
+  \[
+    \ket{\psi}\longmapsto U\ket{\psi}.
+  \]
+
+  In particular, products of local and two-qubit gates can generate
+  general quantum transformations. The lecture notes emphasize that
+  allowing gates acting on adjacent qubits is sufficient for the intended
+  construction.
+
+\end{enumerate}
+
+\subsection{Classical States and Superposition}
+
+A state
+\[
+  \ket{\psi}
+  =
+  \sum_x\alpha_x\ket{x}
+\]
+is \emph{classical} if all amplitudes are zero except one (whose magnitude
+is $1$).
+
+A state is in \emph{superposition} if there are multiple non-zero
+amplitudes.
+
+\section{Local Gates and Two-Qubit Gates}
+
+A unitary in $\C^{2\times2}$ is a single-qubit unitary. In particular,
+$H\in\C^{2\times2}$ is a single-qubit unitary.
+
+A unitary in $\C^{4\times4}$ is a two-qubit unitary.
+
+A circuit of the form
+\[
+  I\otimes\cdots\otimes I\otimes H\otimes I\otimes\cdots\otimes I
+\]
+acts on one qubit, while a two-qubit gate acts on a pair of qubits.
+
+More generally, a product of such local gates and two-qubit gates generates
+a unitary transformation on the full $n$-qubit space.
+
+\subsection{Linearity}
+
+Suppose
+\[
+  U
+  =
+  I\otimes\cdots\otimes I\otimes H\otimes I\otimes\cdots\otimes I.
+\]
+
+For a computational-basis state
+\[
+  \ket{x_1x_2\cdots x_n},
+\]
+the action factors according to the qubit on which $H$ acts. By linearity,
+for
+\[
+  \ket{\psi}
+  =
+  \sum_{x_1,\ldots,x_n}
+  \alpha_{x_1\cdots x_n}
+  \ket{x_1\cdots x_n},
+\]
+we obtain
+\[
+  U\ket{\psi}
+  =
+  \sum_{x_1,\ldots,x_n}
+  \alpha_{x_1\cdots x_n}
+  U\ket{x_1\cdots x_n}.
+\]
+
+\section{Measurement of All Qubits}
+
+The $n$-qubit version of Born's rule is:
+
+\[
+  \ket{\psi}
+  =
+  \sum_{j=0}^{2^n-1}\alpha_j\ket{j}
+  \quad\Longrightarrow\quad
+  \Prob(j)=|\alpha_j|^2.
+\]
+
+Upon observing outcome $j$, the state collapses to
+\[
+  \ket{j}.
+\]
+
+The problem set will introduce how to measure arbitrary single qubits.
+
+\subsection{Measurement of the First Qubit}
+
+For an $n$-qubit state, one can write
+\[
+  \ket{\psi}
+  =
+  \ket{0}\ket{\psi_0}
+  +
+  \ket{1}\ket{\psi_1}.
+\]
+
+Measuring the first qubit gives the corresponding classical outcome and
+leaves the remaining system in the appropriate conditional state.
+
+\subsection{Adding a Fresh Qubit}
+
+Given an $n$-qubit state $\ket{\psi}$, we can initialize a fresh qubit as
+$\ket{0}$, generating
+\[
+  \ket{\psi}\otimes\ket{0},
+\]
+a state on $n+1$ qubits.
+
+\section{Joining and Separating Systems}
+
+More generally, we can join quantum systems:
+\[
+  \ket{\psi}\otimes\ket{\phi}.
+\]
+
+We can also separate unentangled systems. These are not additional axioms;
+they can be derived from the axioms.
+
+\subsection{Why the Description Gives the Correct Statistics}
+
+Suppose
+\[
+  \ket{\psi}
+  =
+  \alpha\ket{0}+\beta\ket{1},
+\]
+where
+\[
+  |\alpha|^2+|\beta|^2=1.
+\]
+
+Then
+\[
+  \ket{\psi}\otimes\ket{\phi}
+  =
+  \alpha\ket{0}\otimes\ket{\phi}
+  +
+  \beta\ket{1}\otimes\ket{\phi}.
+\]
+
+If we measure the first qubit and obtain $1$, the remaining state is
+proportional to $\ket{\phi}$, as expected for an unentangled system.
+
+\section{Important Math Review: Probability Theory}
+
+Let $X\ge 0$ be a random variable.
+
+\subsection{Markov's Inequality}
+
+For all $a>0$,
+\[
+  \Prob(X\ge a)
+  \le
+  \frac{\E[X]}{a}.
+\]
+
+Also,
+\[
+  \E[X]=\sum_x x\,\Prob(X=x)
+\]
+for a discrete random variable.
+
+\subsection{Chebyshev's Inequality}
+
+Let $X$ be a random variable with finite variance
+\[
+  \Var(X)=\sigma^2
+\]
+and mean
+\[
+  \E[X]=\mu.
+\]
+
+For $k>0$,
+\[
+  \Prob\!\left(|X-\mu|\ge k\sigma\right)
+  \le
+  \frac{1}{k^2}.
+\]
+
+This follows by applying Markov's inequality to
+\[
+  Y=(X-\mu)^2
+\]
+with threshold $a=k^2\sigma^2$.
+
+\subsection{Chernoff Bounds}
+
+For a random variable $X$ and suitable $t>0$,
+\[
+  \Prob(X\ge a)
+  =
+  \Prob(e^{tX}\ge e^{ta})
+  \le
+  e^{-ta}\E[e^{tX}],
+\]
+by Markov's inequality.
+
+If
+\[
+  X=X_1+\cdots+X_n
+\]
+for independent random variables, then
+\[
+  \E[e^{tX}]
+  =
+  \E\!\left[e^{t\sum_iX_i}\right]
+  =
+  \prod_i \E[e^{tX_i}].
+\]
+
+\subsection{Bernoulli Case}
+
+Let $X_i\in\{0,1\}$ with
+\[
+  \Prob(X_i=1)=p_i,
+  \qquad
+  \Prob(X_i=0)=1-p_i.
+\]
+
+Then
+\[
+  \E[e^{tX_i}]
+  =
+  (1-p_i)+p_i e^t
+  =
+  1+p_i(e^t-1).
+\]
+
+Using
+\[
+  1+x\le e^x,
+\]
+we obtain
+\[
+  \E[e^{tX_i}]
+  \le
+  \exp\!\bigl(p_i(e^t-1)\bigr).
+\]
+
+Therefore,
+\[
+  \E[e^{tX}]
+  \le
+  \exp\!\left((e^t-1)\sum_i p_i\right).
+\]
+
+Since
+\[
+  \mu=\E[X]=\sum_i p_i,
+\]
+we get
+\[
+  \E[e^{tX}]
+  \le
+  e^{\mu(e^t-1)}.
+\]
+
+Consequently,
+\[
+  \Prob(X\ge a)
+  \le
+  \inf_{t>0}
+  \exp\!\left(-ta+\mu(e^t-1)\right).
+\]
+
+Taking
+\[
+  a=(1+\delta)\mu
+\]
+and optimizing gives
+\[
+  t=\ln(1+\delta).
+\]
+
+This yields the standard Chernoff upper-tail bound
+\[
+  \Prob\!\left(X\ge(1+\delta)\mu\right)
+  \le
+  \left(
+    \frac{e^\delta}{(1+\delta)^{1+\delta}}
+  \right)^\mu.
+\]
+
+A common simpler form is
+\[
+  \Prob\!\left(X\ge(1+\delta)\mu\right)
+  \le
+  \exp\!\left(-\frac{\delta^2\mu}{2+\delta}\right),
+  \qquad \delta>0.
+\]
+
+Similarly, for $0<\delta<1$,
+\[
+  \Prob\!\left(X\le(1-\delta)\mu\right)
+  \le
+  \exp\!\left(-\frac{\delta^2\mu}{2}\right).
+\]
+
+\subsection*{Exercise}
+
+Let
+\[
+  X=\sum_{i=1}^n X_i,
+  \qquad
+  \mu=\E[X].
+\]
+Derive the corresponding Chernoff bounds directly from Markov's inequality.
+
+\end{document}
