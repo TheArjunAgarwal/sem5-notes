@@ -521,7 +521,7 @@ Rado answered shortly after leading to the *Sunflower Lemma*.
   Didn't go to class as sick and sleepy...
 ]
 
-A $O^*(g(k))$ algorithm for the disjoint version $=>$ an $O^* (sum_(i=0)^k binom(k+i, i) g(k-i))$ algorithm for the original problem when $g(k) = alpha^k$. This gives $O^* ((alpha+1)^k)$.
+A $cal(O)^*(g(k))$ algorithm for the disjoint version $=>$ an $cal(O)^* (sum_(i=0)^k binom(k+i, i) g(k-i))$ algorithm for the original problem when $g(k) = alpha^k$. This gives $cal(O)^* ((alpha+1)^k)$.
 
 = Tournament Feedback Vertex Set
 #definition(title: "Tournament Vertex Set")[
@@ -732,3 +732,92 @@ This gives the odds of a good coloring to be $1/(2^(q+k))$ and hence, an algorit
 #remark[
   This would probably be publishable in 2006 or 2007 but Marx didn't know about random separation and now this is a classic exercise in the textbook (and has no other reference).
 ]
+
+== Divide and Color
+This idea tries to combine divide and conquer with color coding to get fast randomized Algorithms. We will consider it on the $k$-path problem with parameter $k$ (the length of path we are looking for).
+
+Let $P$ be on $l$-path in $G$, with end points $u, v$.
+
+Partition $V(G)$ into two parts $L, R$ uniformly at random.
+
+We hope that the *first* $ceil(l/2)$ vertices of $P$ are in $L$ and the rest in $R$. This has probability $1/2^l$.
+
+Now we recursively look for path of length $ceil(l/2)$ and $floor(l/2)$ in $G[L]$ and $G[R]$.
+
+But how do we know they will patch together? By changing the question!
+
+For $X subset.eq V(G), l in {1,2,dots, k}$ and $u, v in X$, let
+$
+D_(X, l)[u, v] := "True" <==> "there is an" l-"vertex path from" u "to" v "in" G[X]
+$
+
+This means, once we have $D_(V(G), k)$ then we can just iterate over all the pairs of vertices and if any is true, we are done.
+
+However, that would be very slow... so instead we compute an approximate version $tilde(D)_(x, l)$ where
+$
+tilde(D)_(x, l)[u,v] = "True" => D_(x,l)[u,v] = "True"\
+D_(x,l)[u,v] = "True" => tilde(D)_(x, l)[u,v] = "True" "with high probability"\
+$
+
+Let $(L, R)$ be a partition of $X$. Let $A$ be an $|L| times |L|$ matrix, $B$ be a $|R| times |R|$ matrix. We define $A join B$ to be the $|X| times |X|$ boolean matrix where $[u,v]$ entry is True if and only if $u in L$, $v in R$ and there is edge between $x, y in E(G)$ with $x in L, y in R$, $A[u,x] = B[y, v] = "True"$.
+
+This means $(D_(L, ceil(L/2)) join D_(R, floor(L/2)))[u, v] = "True"$ if and only if $G[X]$ has an $l$ path from $u$ to $v$ where first $ceil(l/2)$ vertices are in $L$ and the rest are in $R$.
+
+This implies (but not the other way) $D_(X, l)[u,v] = "True"$.
+
+#psudo(title: "Simple Random Path")[
+  + def SRP($X$, $l$):
+    + If $l=1$: return $tilde(D)_(X, l)[v,v] = "True"$ for all $v in X$ and "False" otherwise.
+    + Partition $X$ into $L, R$ uniformly at random
+    + $tilde(D)_(L, ceil(L/2)) = "SRP"(L, ceil(L/2))$
+    + $tilde(D)_(R, floor(L/2)) = "SRP"(R, floor(L/2))$
+    + return $tilde(D)_(X, l) = tilde(D)_(L, ceil(L/2)) join tilde(D)_(R, floor(L/2))$
+]
+
+The recursion is $T(l) = 2 T(l/2) + n^c => T(l) = l dot n^c = cal(O)(n^(c+1))$.
+
+Wait $P = "NP"$? Not really. Notice that our algorithm's success is not guaranteed. Looking at the tree, it is $(1/(2^l))^(log l) = 1/2^(l log l)$.
+
+This gives an runtime of $cal(O)^*(2^(l log l)) = cal(O)^*(2^(k log k)) = cal(O)^*(k^k)$ which is a lot, lot worse than our original $cal(O)^*((2e)^k)$ color coding algorithm.
+
+So what do we do? Our main issue is that the randomization keeps happening. Perhaps, let's front load the randomization.
+
+#psudo(title: "Fast Random Path")[
++ def $"FRP"(X,l)$:
+  + If $l = 1$: return $tilde(D)_(X, l)[v,v] = "True"$ for all $v in X$ and "False" otherwise.
+  + Set $tilde(D)_(X, l)[u,v] = "False"$ for all $u, v in X$
+  + Repeat $f(l,k)$ times:
+    + partition $X$ into $L, R$ uniformly at random
+    + $tilde(D)_(L, ceil(l/2)) = "FRP"(L, ceil(l/2))$
+    + $tilde(D)_(R, floor(l/2)) = "FRP"(R, floor(l/2))$
+    + $tilde(D')_(X, l) = tilde(D)_(L, ceil(l/2)) join tilde(D)_(R, floor(l/2))$
+    + $tilde(D)_(X,l)[u,v] = tilde(D)_(X,l)[u,v] or tilde(D')_(X, l)[u,v]$ for all $u, v in X$
+  + return $tilde(D)_(X, l)$
+]
+
+The idea is that (based on $f(l,k)$) that we have a massive tree but we only need one subtree to succeed.
+
+Let's say success for a node is just partitioning well, rest of the work is the job of it's children.
+
+The probability of success of an arbitrary node in one try is $1/2^l$. Thus, the probability of failure in $f(l,k)$ tries is $(1 - 1/2^l)^(f(l,k))$.
+
+Choose $f(l,k) = 2^l log(4 k)$.
+
+This mke the probability of failure to be $<= 1/(4 k)$.
+
+Thus, probability that some node of the $k$-node skeleton fails is $1/4$ by the union bound.
+
+This, probability that none of the skeleton fails, that is our algorithm finds the path is $3/4$.
+
+Let's now look at the running time.
+
+$
+T(l,k) &<= 2^l log(4 k) 2 T(l/2, k) + n^c\
+=> T(l,k) &= 4^(l + o(l+k)) n^d\
+&< 4^(k + o(k)) n^d\
+&< 4^(k + o(k)) n^d
+$
+
+This gives an $cal(O)^*(4^k)$ algorithm.
+
+The state of the art is $cal(O)^*(1.618^k)$ where $1.618$ is the golden ratio.
