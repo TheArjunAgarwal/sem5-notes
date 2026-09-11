@@ -821,3 +821,97 @@ $
 This gives an $cal(O)^*(4^k)$ algorithm.
 
 The state of the art is $cal(O)^*(1.618^k)$ where $1.618$ is the golden ratio.
+
+== Chromatic Coding
+We will be looking at a class of problems that is characterized as:
+#defn[
+  Let $cal(F)$ be some family of graph (for example, say chordal, d-cluster, interval etc)
+
+  *Input:* Given a graph $G$ on $n$ vertices and $k in NN$
+
+  *Parameter:* $k$
+
+  *Question:* Is there a set $A subset.eq binom(V(G), 2)$ of atmost $k$ adjacencies of $G$ such that $G plus.o A in cal(F)$?
+
+  where $G plus.o A = G'$ where if $e in A$ and $e in E(G)$ then $e in.not E(G')$ and if $e in A$ and $e in.not E(G)$ then $e in E(G')$ and the other edges remain as is.
+]
+
+The general algorithm involves: coloring $V(G)$ with $q$ colors at random, such that (with good probability) for every $u v in A$, $chi(u) != chi(v)$ for the coloring we get.
+
+This partitions $V(G) = V_1 union V_2 union dots union V_q$ where $v in V_i <==> chi(v) = i$.
+
+If $cal(F)$ is closed under taking induced subgraphs, then $G[V_i]$ is also in $cal(F)$. Note, this is true for our examples. We exploit this property to create our algorithm.
+
+First we ask: how many colors do we need, to color $A$ 'properly'?
++ An arbitrary graph with $n$ vertices? $n$ because of $K_n$
++ A planar graph on $n$ vertices? $4$, by 4-color theorem
++ A graph on $n$ vertices and max degree $Delta$? $Delta + 1$ by simple greedy coloring.
++ A graph on $n$ vertices with min degree $d$? $n$ by simply a clique with one out branch (leading to $d = 1$)
+  #definition(title:"Degeneracy")[
+  Given a graph $G$, we say it has degeneracy $delta$ if there is a $v$ vertex with degree atmost $delta$ and $G minus v$ also has degeneracy $delta$.
+
+  For example: A tree has $delta= 1$ as we can delete a leaf and still be left with a lead.
+  ]
++ A graph on $n$ vertices with degeneracy $delta$? 
+  #solution[
+    We form a chain $v_1, v_2, dots, v_n$ where $v_i$ has degree $<= delta$ in $G - {v_1, v_2, dots, v_(i-1)}$.
+
+    Color greedily in reverse order: $v_n, v_(n-1), dots, v_1$.
+
+    This won't lead to a conflict as $v_k$ has atmost $delta$ neighbors in ${v_(k+1), v_(k+2), dots, v_n}$.
+  ]
+
+This motivates:
+#lem[
+  Any graph $G$ on $n$ vertices with $k$ edges has degeneracy $<= ceil(sqrt(2 k))$.
+]
+#proof[
+  FTSOC, let the above not be true. It is clear that:
+  $
+  "Sum of degrees" <= 2k > delta n\
+  => n < (2k)/delta\
+  => k <= binom(n, 2) < binom((2k)/delta, 2) 
+  $
+
+  As $delta >= sqrt(2 k)$,
+  $
+  k < binom(sqrt(2k), 2) < k
+  $
+
+  which is absurd!
+
+  Thus, our initial assumption must be false. Thus, any graph $G$ on $n$ vertices with $k$ edges has degeneracy $<= ceil(sqrt(2 k))$.
+]
+
+A lemma we'll prove a bit later is
+#lem[
+  If the vertices of a graph $H$ on $<= k$ edges are colored uniformly at random with $q = ceil(sqrt(8 k))$, then the probability that $H$ is properly colored is $>= 2^(- sqrt(k/2))$.
+]
+
+#definition(title: [$cal(l)$-cluster graph])[
+  A graph with $<= cal(l)$ components with each being a clique is called a $cal(l)$-cluster graph.
+]
+
+#definition(title: "d-cluster")[
+  *Input:* Given graph $G$ and $k in NN$
+
+  *Parameter:* $k$
+
+  *Question:* Does there exist $A subset.eq binom(V(G), 2)$ and $|A| <= k$ abd $G plus.o$ is a d-cluster?
+]
+
+After our coloring,
+#figure(image("pea-images/2-clustering.png"))
+For say 2-clustering, the two clusters are divided among our vertexes.
+
+We have $<= 2q = ceil(2 sqrt(8k))$ cliques across the color sets. 
+
+We can make a guess for the clusters position.
+
+There are $2^(cal(O)(sqrt(k)))$ possible guesses and only $1$ is correct.
+
+This gives us a $2^(cal(O)(sqrt(k)))$ aka sub-exponential algorithm.
+
+We can extend this for d-clustering.
+
+This was solved by Alon, Lokshtanov and Saurabh where Lokshtanov and Saurabh found the randomized algorithm while Alon de-randomized it (as they wrote to him).
