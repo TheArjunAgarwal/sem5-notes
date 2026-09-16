@@ -357,3 +357,113 @@ $
 This implies $M arrow.r.hook cal(C)^(oo)(M)$ with $p |-> {psi_1, psi_2, dots, psi_n}$.
 
 Belkin-Niyogi proved that (under some constraints) as vertices go to infinity, the laplacian converges to Laplace-Beltrami operator on some manifold.
+
+= Graph Partitioning
+#definition(title: "Graph Partitioning")[
+  Given a graph $G$, we define the graph partitioning to be the solution:
+  $
+  S = arg min_(S subset.eq V_G) "cut"(S, S^c)
+  $
+
+  where $"cut"(U, V) = sum_(u in U, v in V) a_(u, v)$.
+]
+
+#definition(title: "Some other cuts")[
+  $
+  "RatioCut"(S, S^c) = (4/n) "cut"(S, S^c)
+  $
+  $
+  "NormalizedCut"(S, S^c) ="cut"(S, S^c) (1/("vol"(S)) + 1/("vol"(S^c)))
+  $
+  where $"vol"(G) = sum_(v in G) "deg"(v)$
+]
+
+Notice, all of these have Laplacian forms. For Graph Partitioning, we can represent the objective as $x^T L x$ where $x_i = 1$ if $i in S$ and $0$ otherwise or as $1/4 s^T L s$ where $s_i = 1$ if $i in S$ and $-1$ otherwise.
+
+Sadly, these are all NP Hard to solve. So instead, we'll deal with the spectral relaxation.
+
+For Ratio Cut, we can see the spectral relaxation is:
+$
+min_(f in RR^n) f^T L f "subject to" sum f_i = 0, quad ||f|| = sqrt(n)
+$
+
+The solution, as we have seen before, is the Fiedler Vector as our equation is the Rayleigh.
+
+For Normalized Cut, we can see the spectral relaxation is:
+$
+min_(f in RR^n) f^T L f "subject to" sum D f_i = 0, quad f^T D f = "vol"(G)
+$
+
+Solving it amounts to $L f = lambda D f => "eigenvector of" L_("sym") = D^(-1/2) L D^(-1/2)$ with $v |-> sqrt(D) v$.
+
+#proof[
+  $
+  L_("sym") w = lambda w\
+  D^(-1/2) L D^(-1/2) w = lambda w\
+  D^(-1/2) L D^(-1/2) sqrt(D) v = lambda sqrt(D) v\
+  D^(-1/2) L v = lambda sqrt(D) v\
+  L v = lambda D v\
+  $
+]
+
+Fiedler in 1973 proved
+#thm[
+  Let $G$ be a connected graph wit laplacian $L$ and $v_2 = (v_(2,1), dots, v_(2, n))$ the eigenvector corresponds to the smallest $n >=$ eigenvalue.
+
+  Set $S = {i in [n] | v_(2,i) >= 0}$. Then the induced subgraphs $G[S]$ and $G[S^c]$ are connected.
+]
+
+Although, in practice we like our components balanced. Hence, trying to order the components and splitting them somewhere (usually median). (Could probabilistic rounding work?! *TO CHECK LATER!*)
+
+Priyavrat's Conjucture:
+#conj[
+  Order the Fiedler vector. Cut it anywhere. Both components are connected.
+]
+
+We will now try to prove Fiedler's theorem.
+
+#proof[
+  $
+  L v = lambda v quad (lambda != 0 amp "is smallest")\
+  (L v)_i &= ((D-A) v)_i = d_i v_i - sum_(i j in E) v_j\
+  &= sum_(j in N(i)) v_i - v_j\
+  &= lambda v_i quad ("Eigenvector")
+  $
+  This implies
+  $
+  => sum_(j in N(i)) v_i - v_j = lambda v_i\
+  => (d_i - lambda) v_i = sum_(j in N(i)) v_j\
+  => v_i = 1/(d_i - lambda) sum_(j in N(i)) v_j
+  $
+]
+
+What if we want to partition into multiple parts? We now define:
+$
+"RatioCut"(S_1, S_2, dots, S_k) = 1/2 sum ("cut"(S_i, S_i^c))/(|s_i|)
+$
+
+$
+"NormalizedCut"(S_1, S_2, dots, S_k) = 1/2 sum ("cut"(S_i, S_i^c))/("Vol"(s_i))
+$
+
+We define the characteristic vector as:
+$
+H_(i j) = cases(
+  1/(sqrt(|S_j|)) ("or" (sqrt(d_i))/(sqrt("vol"(S_j)))) & s_i in S_j,
+  0 & s_i not in S_j
+)
+$
+
+We can relax these as well. For Ratio Cut,
+$
+arg min_(H) "Tr"(H^T L H) "s.t." H^T H = I_k
+$
+and for Normalized Cut,
+$
+arg min_(F) "Tr"(F^T L_"Sym" F) "s.t." F^T F = I_k
+$
+where $F = sqrt(D) H$
+
+Let $U_(k m)$ be the matrix whose rows re the 1st $k$-eigenvectors of $L$.
+
+We use $k$-means to solve these further. All this goes via "Chigger-Inequalities" or "Spectal Wrapping" (google later!)
