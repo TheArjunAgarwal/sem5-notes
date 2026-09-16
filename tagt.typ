@@ -476,4 +476,4 @@ We use $k$-means to solve these further. All this goes via "Chigger-Inequalities
    + return the above
 ]
 
-In some algorithms, we don't need to chose a $k$ and choose $k$ by the spectral gap. We define $Delta_k := lambda_(k+1) - lambda_k$ and choose $hat(k) = arg max_(k) Delta_k$
+In some algorithms, we don't need to chose a $k$ and choose $k$ by the spectral gap. We define $Delta_k := lambda_(k+1) - lambda_k$ and choose $hat(k) = arg max_(k) Delta_k$.
