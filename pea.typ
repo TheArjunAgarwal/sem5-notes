@@ -24,6 +24,12 @@
 
  "They are a complexity theorist. They want nothing to do with algorithms."
 
+ "Sometimes, nobody knows the algorithm. Not even LLMs."
+
+ "Tar(z|j)an jumped in to solve it."
+
+ "We will now talk about minors. Not legal minors, graph minors."
+
 = Brief Intro and Motivation
 Parametrized Algorithms starts where the first algorithms course ends: NP Completeness.
 
@@ -915,3 +921,95 @@ This gives us a $2^(cal(O)(sqrt(k)))$ aka sub-exponential algorithm.
 We can extend this for d-clustering.
 
 This was solved by Alon, Lokshtanov and Saurabh where Lokshtanov and Saurabh found the randomized algorithm while Alon de-randomized it (as they wrote to him).
+
+= Graph Minors
+#definition(title: "Contraction of an edge")[
+  To contract an edge $u v$:
+  - Delete $u$ and $v$
+  - Add a new vertex $w$ adjacent to $(N(u) union N(v)) backslash {u, v}$
+
+We denote this as $G backslash u v$
+]
+
+#definition(title: "Minor")[
+  A graph $H$ is a minor of graph $G$ if $G ~> H$
+  - Vertex deletions
+  - Edge deletions
+  - Edge contractions
+in any order. We denote this by $H succ.eq_m G$.
+
+Equivalently, $H$ is a contraction of a subgraph of $G$.
+]
+
+Notice, we can characterize forests as graphs that don't have a triangle as a minor (as we can't introduce cycles). Sort of, some properties are preserved under taking a minor.
+#exercise[
+Let $H succ.eq_m G$. If $G$ has the property $\_\_\_\_\_$ then $H$ as has it:
++ No Edges - TRUE
++ Forest - TRUE
++ Tree - FALSE (delete vertex to make forest)
++ Connected - FALSE (see above)
++ $Delta(G) <= 3$ - FALSE
++ Bipartite - FALSE (take an even cycle, now contract an edge)
++ Planar - TRUE
++ $|"dominating"(G)| <= 1$ - FALSE (delete the midpoint of the star)
+]
+
+#definition(title: "Minor Closed")[
+   A family $cal(F)$ of graphs is *minor closed* if $G in cal(F)$ and $H succ.eq_m G => H in cal(F)$.
+]
+#definition(title: "Obstruction Set")[
+  The obstruction set (also called "forbidden set") of a family $cal(F)$ of graphs is the set of  all graphs $H$ such that
+  + $H not in cal(F)$
+  + every proper minor of $H$ is in $cal(F)$
+
+This is denoted $"Obstr"(cal(F))$
+]
+
+#lem[
+  If $cal(F)$ is minor-closed, then $G in F$ if and only if no graph in $"Obstr"(cal(F))$ is a minor of $G$.
+]
+#proof[
+  #todo[]
+]
+
+This implies that minor-closed families are characterized by the obstruction set.
+
+#definition(title: "Quasi Ordering")[
+  A binary relation which is reflexive and transitive is called a Quasi#footnote[Can't call it Qusai ordering sadly.] ordering.
+
+  Ex: $A$ is a subgraph of $B$ or $A$ is a minor of $B$
+]
+
+#definition(title: "Well Quasi Ordering")[
+  A Quasi ordering ofer a set $cal(U)$ is a well-quasi orderng (WQO) if *every infinite* sequence $chevron.l x_1, x_2, dots chevron.r$ of elements of $cal(U)$ contains atleast one pair $x_i$ and $x_j$ with:
+  $
+  i <  and $x_i succ.eq x_j$
+  $
+]
+Notice, "is a subgraph of" is not a well-quasi ordering as in the sequence of cycles $C_1, C_2, dots$, no earlier graph is a subgraph of a latter graph.#footnote[How did none of us figure this out till Prof. Philip pointed it out?!]
+
+Robertson and Seymour proved, what was previously called Wagner's conjucture:
+#thm[
+  Finite Graphs are well-quasi ordered by the graph minor relation.
+]
+
+This proofs were started in 1983 with the paper "Graph Minor I" and ended in 2004 with the paper "Graph Minor XX" (and expanded till "Graph Minor XXIII").
+
+These papers used almost half the words of the English dictionary as terms and are a gold mine of ideas. It is belived that this was delayed due to the only qualified reviewer dying due to old age.
+
+#cor[
+  Every minor closed family of graphs has a finite obstruction set.
+]
+
+Note, given $G$ and $H$, checking if $H$ minor of $G$ is NP-Hard as we can check for $C_n$ in a $n$-vertex graph which is NP-Hard as it solves Hamiltonian Path.
+
+But if we get to fix $H$, then Robertson and Seymour showed:
+#thm[
+  There is a computable function $f$ and an algorithm that, given graph $H$ and $G$, check's if $H succ.eq_m G$ in time $f(|H|) dot |V(G)|^3$
+]
+
+Sadly, this is not constructive. Also, the $f$ is a tower of power of $2$'s where the height is also a tower of power of $2$'s whose height depends on $|H|$. This makes their algorithm 'galactic' as the constant is massive even for small $H$.
+
+Notice, as planar graphs are characterized by linkless embedding (some old paper), we can use the corollary to find the finite obstruction sets. We can then use Robertson and Seymour's algorithm. We didn't even know the obstruction sets (which we now know to be 7).
+
+This sort of gave us the proof of an algorithm existing without explictly finding it. But it does tell us that the problem is in Polytime.
