@@ -466,4 +466,14 @@ where $F = sqrt(D) H$
 
 Let $U_(k m)$ be the matrix whose rows re the 1st $k$-eigenvectors of $L$.
 
-We use $k$-means to solve these further. All this goes via "Chigger-Inequalities" or "Spectal Wrapping" (google later!)
+We use $k$-means to solve these further. All this goes via "Chigger-Inequalities" or "Spectal Wrapping" (google later!).
+
+#psudo(title: [The Spectral Clustering (for $k>=3$)])[
+  + def Cluster(data, k)
+   + Find the Laplacian of the data graph 
+   + Find $U_(k, n)$ (the first $k$ eigenvector of the Laplacian)
+   + Apply $k$-means to columns of $U_(k, n)$
+   + return the above
+]
+
+In some algorithms, we don't need to chose a $k$ and choose $k$ by the spectral gap. We define $Delta_k := lambda_(k+1) - lambda_k$ and choose $hat(k) = arg max_(k) Delta_k$
