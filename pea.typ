@@ -1013,3 +1013,100 @@ Sadly, this is not constructive. Also, the $f$ is a tower of power of $2$'s wher
 Notice, as planar graphs are characterized by linkless embedding (some old paper), we can use the corollary to find the finite obstruction sets. We can then use Robertson and Seymour's algorithm. We didn't even know the obstruction sets (which we now know to be 7).
 
 This sort of gave us the proof of an algorithm existing without explictly finding it. But it does tell us that the problem is in Polytime.
+
+= I was home for like 2-3 classes
+#todo[]
+
+= DP over Subsets
+#todo[]
+
+== Set Cover
+
+#definition(title: "Set Cover")[
+  Given: A finite universe $cal(U)$, a family $cal(F)$ of subsets of $cal(U)$ and $k in NN$.
+
+  Question: Does there exist a subfamilly $cal(F)' subset.eq cal(F)$ with $|cal(F)'| <= k$ and $union.big cal(F)' = cal(U)$?
+]
+This probalem is unlikely to be FPT with $k$ as it reduces to *Dominating Set* which is W[2]-hard (for parameter $k$).
+
+#definition(title: "Dominating Set")[
+  Given: Undirected graph $G$ on $n$ vertices and $k in NN$
+
+  Parameter: $k$
+
+  Question: Is there a subset $S subset.eq V(G)$ of vertices, $|S| <= k$ such that $N[S] = V(G)$?
+]
+
+We can reduce to set cover by $cal(U) = V(G)$ and $cal(F) = {N[v] | v <- V(G)}$.
+
+But dominating set has an obvious FPT algorithm on $n$ (just check all subsets!).
+
+Does set cover have someting on $|cal(U)| = n$? Yes. We can check all subsets of $cal(F)$ in $2^(|cal(F)|)$ time. As $|cal(F)|$ is bounded by $2^n$, we have a $O^*(2^(2^n))$ algorithm.
+
+Can we do better?
+
+Consider that the smallest set cover has $<= n$ subsets from $cal(F)$ (as each element is in atleast one subset). This means we only need to look at $<= n$ sized sub-families. That gives an $O^*(binom(2^n, n)) = O^*(2^(n^2))$ algorithm.
+
+But can we do better?
+
+Let $cal(F) = {F_1, F_2, dots, F_m}$ for $X subset.eq cal(U)$ and $0 <= j <= m$, let $"dp"[X,j]$ denote the smallest size of a sub-family of ${F_1, dots, F_j}$ that covers $X$ and $"dp"[X,j] = oo$ if there is no such family.
+
+We have the base case $"dp"[emptyset, 0] = 0$ or $"dp"[X, 0] = oo$ if $X != emptyset$.
+
+For $j >=1$:
+$
+"dp"[X,j] = min("dp"[X, j-1], "dp"[X backslash F_j, j-1] + 1)
+$
+
+We can output $T[cal(U), m]$.
+
+This has space $O^*(2^n dot m)$ and time $O^*(2^n dot m)$ which are both bounded by $O^*(4^n)$.
+
+== Steiner Tree
+#definition(title: "Steiner Tree")[
+  A Steiner Tree for $K subset.eq V(G)$ a connected subgraph $H$ of $G$ with $K subset.eq V(H)$.
+]
+#definition(title: "Steiner Tre Problem")[
+  Given: Connected graph $G$ with edge weights $w : E(G) -> RR_(>= 0)$ and a set $K subset.eq V(G)$ of terminals.
+
+  Question: Find a Steiner Tree of $K$ with minimum total weight.
+]
+For $|K| = 2$, this is just the shortest path. For $|K| = |V(G)|$, this is just the minimum spanning tree.
+
+But for intermiddiate $K$, it is NP Hard. It is known to be NP-Hard for $|K| >= 3$ for even unweighted graphs!
+
+Why is this named Steiner Tree and not graph? As if it had cycles, we could delete edges to reduce weight.
+
+Also, the leaves have to be terminal (but not vice versa) as otherwise, we could lose the non terminals leaf and have a Steiner Tree with lower weight.
+
+Can we now see a $O^*(n^(f(k)))$ algorithm?
+
+Let $H$ be a Steiner Tree on $k$. Guess $X subset.eq K$ that are leaves in $H$.
+
+#lem[
+  If a tree has $k$ leaves, then it has atmost $k-2$ vertices of degree $>= 3$.
+]
+#proof[
+  By Handshaking Lemma and let vertices of number of degree $1, 2, >= 3$ being $k_1 = k, k_2, k_3$:
+  $
+  k_1 + 2k_2 + 3 k_3 <= 2(k_1 + k_2 + k_3 - 1)\
+  => k_1 + 2k_2 + 3 k_3 <= 2k_1 + 2k_2 + 2k_3 - 2\
+  => k_3 <= k_1 - 2 = k - 2
+  $
+
+  Thus, if a tree has $k$ leaves, then it has atmost $k-2$ vertices of degree $>= 3$.
+]
+
+Thus, $H$ has $<= |X| - 2$ vertices of degree $>=3$.
+
+We can hence, guess the large degree vertices in $n^k$ time as well.
+
+#thm("Cayley's Theorem")[
+  There are $<= t^t$ trees on $t$ vertices.
+]
+
+Using above, we can hence solve our problem in $O^*(n^(f(k)))$ time. Hence, problem in in XP.
+
+Dryphus-Wagner in 1971 gave an algorithm to solve this in $O^*(3^(|K|))$ time.
+
+Neederlof showed that $O^*(2^(|K|))$ for unweighted graph via inclusion-exclusion.
