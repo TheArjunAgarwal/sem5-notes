@@ -30,6 +30,12 @@
 
  "We will now talk about minors. Not legal minors, graph minors."
 
+ "I don't know how to pronounce this. For that you'll have to ask the French prof. They'll only pronounce 3 letters. I know that only 10% of the letters will be pronounced, I just don't know which 10%."
+
+ "Now that I have done French, I will do German."
+
+ "See this where my knowledge of German helps, to waste time."
+
 = Brief Intro and Motivation
 Parametrized Algorithms starts where the first algorithms course ends: NP Completeness.
 
@@ -1107,6 +1113,54 @@ We can hence, guess the large degree vertices in $n^k$ time as well.
 
 Using above, we can hence solve our problem in $O^*(n^(f(k)))$ time. Hence, problem in in XP.
 
-Dryphus-Wagner in 1971 gave an algorithm to solve this in $O^*(3^(|K|))$ time.
+Dreyphus-Wagner in 1971 gave an algorithm to solve this in $O^*(3^(|K|))$ time.
 
 Neederlof showed that $O^*(2^(|K|))$ for unweighted graph via inclusion-exclusion.
+
+=== An _Avent la lettre_ FPT Algorithms
+We may assume
++ $|K| >= 2$ as otherwise, there is not much to do.
++ Every terminal has degree $= 1$ and it's unique neighbor is not a terminal. (just add a new leaf vertex attached to the terminal and make it the terminal!)
+
+This implies we have been given a set of things that have to be leaves and want to find a minimum weight spanning tree.
+
+Let $H$ be an (unknown) optimal Steiner tree for $k$. Pick an arbitrary edge $x y$ of $H$ and delete it. We get two trees $H_x$ and $H_y$ .
+
+Note, both these must have non-zero terminal nodes. Let them be $D$ and $K backslash D$ respectively.
+
+Notice, $H_x$ is an optimal Steiner tree for $D union {x}$ and $H_y$ is an optimal Steiner Tree for for $(K backslash D) union {y}$.
+
+Thus, to find $H$, it is enough to find, for each $D subset.eq K$ and each $v in V(G) backslash K$ the optimal Steiner tree fr $D union {v}$. Save this as $T(D, v)$. We can now report:
+$
+min_(x y in G,\ x,y in.not K\ D subset.eq K) T(D,x) + T(D backslash K, y) + w(x,y)
+$
+
+Problem is that some $v$ could have degree one in optimal steiner tree for $D union {v}$ for some $D$. This can't be computed by the DP table as we refer to different cardinality subsets in the recursion and can't use the same...
+
+So we guess the first vertex $u$ in the optimum Steiner Tree for $D union {v}$ where the tree branches. Do the 'tree splitting' at this vertex $u$ and not at $v$ (possibly $u = v$).
+
+For each non-empty $D subset.eq K$ and each $v in V(G) backslash K$, let
+$
+T[D, v] = "the minimum weight Steiner Tree for" D union {v}
+$
+Base case:
+$
+T[{t}, v] = "dist"(t,v)
+$
+
+Reccurence:
+$
+T[D,v] = min_(u in V(G) backslash K,\ emptyset != D' subset D) T[D',u] + T[D backslash D', u] + "dist"(v,u)
+$
+
+Notice, we use $O^*(2^k n) = O^*(2^k)$ space.
+
+To compute for $|D| = i$, we take atmost $n dot 2^i$ time. Thus, our time complexity is
+$
+&sum_(i = 0)^k (n dot binom(k,i) 2^i)\
+=& n sum_(i = 0)^k binom(k,i) 2^i\
+=& n (2+1)^k quad quad "by Binomial Theorem"\
+=& n dot 3^k
+$
+
+Thus, we need $O^*(3^k)$ time.
