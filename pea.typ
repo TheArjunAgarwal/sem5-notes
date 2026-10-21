@@ -1164,3 +1164,135 @@ $
 $
 
 Thus, we need $O^*(3^k)$ time.
+
+= Fast Subset Convalution
+#definition(title: "Subset Convalution")[
+  Given $N := {1, 2, dots, n}$ and $f, g : 2^N -> RR$; we define $f convolve g$ as:
+  $
+  (f convolve g)(S) := sum_(T subset.eq S) f(T) g(S backslash T)
+  $
+]
+
+Doing this naively would take $O^*(3^n)$ time.
+
+Direct FFT gives $sum_(T subset.eq N) f(T)g(S backslash T)$ in $O^*(2^n)$ time.
+
+#definition(title:"Mobius Transform")[
+  Given $f : 2^N -> R$, the forward mobius transform (MT):
+  $
+  (f: S |-> f(s)) ->_("MT") (F : S |-> sum_(T subset.eq S) f(T))
+  $
+
+  and the inverset mobius transform is (IMT):
+  $
+  (f: S |-> f(s)) ->_("IMT") (F : S |-> sum_(T subset.eq S) (-1)^(|S backslash T|) f(T))
+  $
+]
+
+#thm[
+$f ->_"MT" F ->_"IMT" f$
+]
+
+The proof is in the #strike("pudding") computation.
+
+Directly computing the mobius transform would take $O^*(3^n)$ time. 
+
+But as it turns out, we can do it in $O(2^n dot n)$ time.
+
+Consider $f = F_0, F_1, dots, F_n$ and
+$
+F_0 (S) = f(S)\
+F_k (S) = cases(F_(k-1) (S) quad &"if" k in S, F_(k-1) (S) + F_(k-1) (S-{k}) quad &"if" k in S)
+$
+
+We can show by induction that
+$
+F_k (S) = sum_(T subset.eq S inter {1,2,dots,k}) f(T union (S inter {k+1, dots, n}))
+$
+
+This can be computed in $O(2^n dot n)$ time. A similar reccurence gives $O^*(2^n dot n)$. 
+
+#definition(title: "Ranked Mobius Transform")[
+  We define Ranked Mobius Transform (RMT) as:
+  $
+  (f : S |-> f(S)) -->_"RMT" (F: (S, k) |-> sum_(T subset.eq S\ |T| = k) f(T))
+  $
+
+  and the Inverse Ranked Mobius Transform which goes from $(2^N times N -> R) -> (2^N -> R)$ as:
+  $
+  (F : (S, k) |-> F(s,r)) -->_("IRMT") (sum_(T subset.eq S) (-1)^(S backslash T) F(T, |S|))
+  $
+]
+
+Note, RMT and IRMT are inverse for obvious reasons as IRMT is 0 only when $T = S$.
+
+#definition(title: "Adithya's Operator")[
+  We define $F convolve.o G$ on ranked functions as:
+  $
+  (F convolve.o G) (S, k) = sum_(j = 0)^k F(S, j) F(S, k - j)
+  $
+]
+We now are ready to compute $f convolve g$.
+
+We first compute $f, g ->_"RMT" F, G$, then compute $F convolve.o G$ and finally compute $(f star g)(S) = "IRMT"(F convolve.o G) (S)$.
+
+#thm[
+  $(f convolve g)(S) = "IRMT"(F convolve.o G) (S)$
+]
+#proof[
+  $
+  "RHS" &= "IRMT"(F convolve.o G) (S)\
+&= sum_(T subset.eq S) (-1)^(|S backslash T|) (F convolve.o G)(T, |S|)\
+&= sum_(T subset.eq S) (-1)^(|S backslash T|) sum_(j = 0)^(|S|) F(T, j) G(T, |S| - j)\
+&= sum_(T subset.eq S) (-1)^(|S backslash T|) sum_(j = 0)^(|S|) (sum_(U subset.eq T,\ |U| = j) f(U)) (sum_(V subset.eq T,\ |V| = |S| - j) f(V))\
+&= sum_(T subset.eq S) (-1)^(|S backslash T|) sum_(U, V subset.eq T,\
+|U| + |V| = |S|) f(U) g(V)\
+&= sum_(T subset.eq S) (-1)^(|S backslash T|) sum_(U, V subset.eq S,\
+|U| + |V| = |S|) f(U) g(V) delta_(U, V subset.eq T)\
+&= sum_(U, V subset.eq S,\
+|U| + |V| = |S|) f(U) g(V) sum_(T subset.eq S) (-1)^(|S backslash T|) delta_(U union V subset.eq T)\
+  =& sum_(U, V subset.eq S,\
+  |U| + |V| = S) sum_(U union V subset.eq T subset.eq S) (-1)^(|T|)
+  $
+
+  which by inclusion-exclusion is $f convolve g$.
+]
+
+We can use this now to solve some problems.
+
+== Chormatic Number
+Given $G = (V, E)$, we define $S subset.eq V$ as
+$
+f(S) = cases(1 quad &"if" S "is independent", 0 quad &"otherwise")
+$
+
+Notice, $f convolve f$ being non-zero indicates 2-colorablity. Similarly, $f convolve f convolve f$ being non-zero indicates 3-colorability and so on.
+
+Thus, we want to check $f^(convolve k)(V)$ is non-zero which takes $O^*(2^n)$ time.
+
+We can also use this to find the chromatic number in $O^*(2^n)$ time (which is something we didn't know about till 2010).
+
+== Dreyphus-Wagner
+Instead of doing convalution on the ring $(dot, +)$, we want to do it over the semi-ring $(+, max "or" min)$ that is:
+$
+(f convolve g) (S) = max_(T subset.eq S) (f(T) + g(S backslash T))
+$
+
+Let $beta = 2^n + 1$
+
+Consider $f'(S) = beta^(f(S))$ and $g'(S)=  beta^(g(S))$.
+
+Using Fast Subset Convalution, on $f'$ and $g'$, we have:
+$
+(f' convolve g')(S) = sum_(T subset.eq S) beta^(f(T) + g(S ))
+$
+
+This allows us to compute the max as in base $beta$, there is no carryovers. So we can find the max position that is non-zero and we are done.
+
+And thus, we can find the convalution on $(+, max)$ in $O^*(2^n)$ time.
+
+We will now use this to find the minimum steiner tree.
+
+Let $G = (V, E)$ and $k subset.eq V$ is our target set
+
+#todo[]
