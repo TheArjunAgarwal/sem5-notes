@@ -36,6 +36,10 @@
 
  "See this where my knowledge of German helps, to waste time."
 
+ (about a benchmark algorithm) "He was just starting PhD when he found it. So it was not in final year of masters. No need to worry."
+
+ "I like saying Principal of Inclusion-Exclusion is a special case of Mobius inversion because it sounds smart. I don't know how to prove it. I might have held it my head at some point, but maybe I should now ask LLM to explain it to me like I am five."
+
 = Brief Intro and Motivation
 Parametrized Algorithms starts where the first algorithms course ends: NP Completeness.
 
@@ -1296,3 +1300,96 @@ We will now use this to find the minimum steiner tree.
 Let $G = (V, E)$ and $k subset.eq V$ is our target set
 
 #todo[]
+
+= Back to Steiner Tree!
+We will now look at an algorithm that gives us steiner tree in $O^*(2^n)$ time.
+
+This was found by Lindler and uses PIE to design an algorithm.
+
+#idea[
+Given a target object $cal(T)$ which is "hard" to locate.
+
+Define a set $cal(U) >= cal(T)$ of 'relaxed' objects that are easier to count.
+
+Define "requirements" $A_1, A_2, dots, A_n subset.eq cal(U)$ that satisfies $T != emptyset <==> inter A_i != emptyset$.
+
+Use $|inter_(i in [n]) A_i| = sum_(x in [n]) (-1)^(|X|) |inter_(i in X) (cal(U) backslash A_i)$.
+]
+== Unweighted Steiner Tree
+#definition(title: "Unweighted Steiner Tree")[
+  *Input:* Connected graph $G$, $K subset.eq V(G)$ (terminals) with $|K| = k >= 2$, integer $l$.
+
+  *Given:* $k = |K|$
+
+  *Question:* Is there a subtree $H$ of $G$ with $K subset.eq V(H)$ and $|E(H)| <= l$?
+]
+
+The motivation is the way we relaxed the notion of a path to that of a walk, maybe a relaxation could help here.
+
+#definition(title: "Graph Homomorphism")[
+  A homomorphism from graph $H$ to a graph $G$ is any function $h : V(H) -> V(G)$ such that $x y in E(H) => h(x)h(y) in E(G)$.
+]
+
+Notice, a walk with $l$ edges in a $G$ is the image of homomorphism from a path with $l$ edges into $G$.
+
+Notice, homomorphism is preserving a local property in case of path and hence, it's easy to count!
+$
+"number of walks in G that start at a and have l edges" \
+= sum_(b in N(a))  "number of walks in G that start at b and have (l-1) edges"
+$
+
+Linlorf obtained a similar formula for trees (although a bit more involved).
+
+#definition(title: "Ordered Trees")[
+  An ordered tree is a rooted tree in which the children of each node are ordered (first child, second child, so on ...)
+]
+
+#definition(title: "Branching Walk")[
+  A branchig walk in a graph $G$ is a pair $B = (H, h)$ where $H$ is an ordered rooted tree and $h: V(H) -> V(G)$ is a homomorphism
+  - $B$ is a from vertex $s in V(G)$ if $h("root of H") = s$
+  - The length of $B = |E(H)|$
+  - $V(B) = h(V(H))$
+]
+#example[
+#figure(image("pea-images/branching-path.png"))
+#figure(image("pea-images/branching-path-II.png"))
+]
+
+Notice, the image is connected!
+
+#claim[Let $k in K$. $G$ has $H$ with $K subset.eq V(H)$ and $E(H) <= l <==> G$ has a branching walk $B$ from $s$ with $K subset.eq V(B)$ and length of $B$ is exactly $l$. ]
+#proof[
+  ($==>$) Identity map!
+
+  ($<==$) Just look at the image of the mapping and find the spanning tree. This exists as the image is connected and thes spanning tree has $<= l$ edges.
+]
+
+And now, we kill using PIE!
+
+Fix a terminal $s in K$. Let $k' = K backslash {s}$.
+
+Relexed objects $cal(U)$: All branching walks of length $l$ from $s$.
+
+Requirements: For each $v in K', A_v = {B in cal(U), v in V(B)}$.
+
+We need to check: is $inter_(v in K') A_v != emptyset$
+
+$
+|inter_(v in K') A_v|  = sum_(X subset.eq K') (-1)^(|X|) |{B in cal(U); V(B) inter X = emptyset}|
+$
+
+Fix $X subset.eq K'$. Let $G' = G - X$. 
+
+For $a in V(G')$ and $0 <= j <=l$:
+  $
+  c_j (a) := "the number of branching walks of length j from a in G'"
+  $
+
+  We now use the fact we had numbered the children!
+  $
+  &c_0 (a) = 1\
+
+  j>=1: &c_j (0) = sum_(t in N_G' (a)) sum_(j_1 + j_2 = j-1) c_(j_1) (a) times c_(j_2) (t)
+  $
+
+Putting this together, we have steiner tree in $O^*(2^n)$ time and polynomial space.
