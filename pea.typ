@@ -1393,3 +1393,79 @@ For $a in V(G')$ and $0 <= j <=l$:
   $
 
 Putting this together, we have steiner tree in $O^*(2^n)$ time and polynomial space.
+
+= Tree Width
+This was one of the notions introduced in the 25 papers proving graph minor relation is well-quasi ordered. Although, similar ideas were already present in graph theory. It is roughly 'how close a graph is to a tree'.
+
+We are interested in it as a lot of NP Hard problems are FPT on graphs with bounded tree-width. For example: (weighted) vertex cover is solvable in $O^*(2^("tw"(G)))$ and $"tw"(G) <= "VC"(G) + 1$ and is in practice a lot smaller.
+
+Hans Badleender used to publish papers with like 20-30 problems solved with tree-width in one paper. One could use 'tree-width' as his middle name.
+
+At some point Bruno Courcelle got pissed off and decided to shut down this pipeline by proving
+#thm[
+  Every graph problem that can be expressed in $"MSO"_2$ as a formula $phi$ can be solvd in time $f("tw"(G), |phi|) dot O(n)$ on graph $G$ with $n$ vertices.
+]
+
+While powerful, this is a meta theorem and hence, gives really crude bounds ($2^2^2^dots$ where height is the tree-width), so quite a lot of papers first put a problem in FPT using Courcelle's theorem and then find better bounds.
+
+Also, tree-width allows us to get sub-exponential algorithm on planar graphs. By some meta theorem, we can show that there is $O^*(2^(O(sqrt(k))))$ algorithm for planar vertex cover. This was later lifted to genus $G$.
+
+So why is this useful? There is a library LIGAND that is 9712 organic compounds that turn up a lot in chemistry. The tree width of anything on that database was $<= 4$ with only one molecule having it be $4$. As nature, in some sense is simple and is not addversarially trying to screw our algorithms.
+
+For a C programme, Thorup proved that the control flow graph (directed graph where the vertices correspond to the lines and there is an (directed) edge between 2 vertices $(i,j)$ if there exists some invocation of the programme where $i -> j$).
+
+#definition(title : "Weighted Vertex Cover")[
+  *Input:* Undirected graph $G$, weights $w: V(G) -> NN$
+
+  *Output:* The least weight $W(S) = sum_(s in S) w(s)$ of a vertex cover $S$ of $G$
+]
+
+We can solve this trees in polytime. Choose a root $r$ and let $"dp"[v][p], "dp"[v][d]$ be the min weight vertex cover on the subtree rooted at $v$ where $v$ is *picked* in the vertex cover and $v$ is *dropped* in the vertex cover respectively.
+$
+"dp"[v][p] = sum_(c in "children of" v) (min "dp"[c][p], "dp"[c][d])\
+"dp"[v][d] = sum_(c in "children of" v) "dp"[c][p]
+$
+
+And we report the answer as $min("dp"[r][p], "dp"[r][d])$.
+
+Let's now consider this problem on a grid $k times N$ where $k < N$.
+
+Can we solve this in $O^*(2^k)$ time?
+
+#figure(image("pea-images/grid.png", height: 35%))
+
+For each subset $S$ of $C_i$ store: the least weight of a vertex cover of $G[C_1 union C_2 union dots union C_(i)]$ that intersects $C_i$ exactly as $S$.
+
+This immidietly gives us a $O^*(2^k dot 2^k) = O^*(4^k)$ algorithm.
+
+Basically, if we have a small seperator, then we can use a DP style approach.
+
+#definition(title: "Path Decomposition and Path Width")[
+A *path decomposition* of a graph $G$ is a sequence $langle B_1, B_2, dots, B_r rangle$ of subtree of $V(G)$, each bag $B_i$ such that:
+  1. Vertex coverage: every vertex is in some bag
+  2. Edge coverage: for each edge $(u, v)$ there is a bag that contains both $u$ and $v$.
+  3. Connectivity: For each vertex $v$, the set of bags that contain $v$ appear consecutivly in the sequence.
+
+The *width* of this path decomposition is $max_i |B_i| - 1$.
+
+The *pathwidth* of a graph $G$ is the least width of a path decomposition of $G$.
+]
+
+Finding the pathwidth is NP Hard. Although, there are some polynomial time approximation algorithms.
+
+#cor[
+The path width of a path is $1$.
+]
+#proof[
+  Consider a path $v_1 - v_2 - dots - v_n$. Now, we can path decompose as $(v_1, v_2) - (v_2, v_3) - dots - (v_(n-1), v_n)$.
+
+  This gives a path width of $1$. 
+  
+  Note, we can't have lower as every edge needs to be in a bag so atleast one bag needs to have $2$ vertices, that is size $2$.
+]
+
+For grids, we can have a path decomposition of width $2k - 1$ by sliding window and $k$ by slithering a snake across column + 1 vertice in the next column.
+
+What is the algorithmic use? We can do a DP over the subsets of the bags (the exact intersection of the solution of everything before it).
+
+In tree width, we will just do it with trees. Notice, trees can have massive path widths (consider a binary search tree).
