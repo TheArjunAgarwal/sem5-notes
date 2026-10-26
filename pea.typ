@@ -1469,3 +1469,9 @@ For grids, we can have a path decomposition of width $2k - 1$ by sliding window 
 What is the algorithmic use? We can do a DP over the subsets of the bags (the exact intersection of the solution of everything before it).
 
 In tree width, we will just do it with trees. Notice, trees can have massive path widths (consider a binary search tree).
+
+#remark[
+  Note, a plannar graph can have a tree width $tilde sqrt(n)$ as we can always find a seperator of that size.
+
+  But this is not that small...(in some way, grids are the worst as they meet $sqrt k$).
+]
