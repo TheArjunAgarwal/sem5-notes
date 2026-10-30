@@ -1557,3 +1557,5 @@ In $2016$, it was solved for $<= 5k + 4$ in $O^*(2^(O(k)))$.
 In $2021$, it was solved for $<= 2k+1$ in $O^*(2^(O(k)))$.
 
 And in $2023$, it was solved for $<= k$ in $O^*(2^(O(k^2)))$.
+
+Open problems: We don't know if Planar tree-width is NP hard..
