@@ -1475,3 +1475,85 @@ In tree width, we will just do it with trees. Notice, trees can have massive pat
 
   But this is not that small...(in some way, grids are the worst as they meet $sqrt k$).
 ]
+
+#todo[Missed a class :sad]
+
+#definition(title: "Tree Decomposition")[
+  A tree decomposition of a graph $G$; $cal(T) = (T, cal(B))$ where $T$ is some tree and $cal(B)$ is a collection of bags $B_i subset.eq V(G)$, with one bag per node $t$ of $T$. These satisfy
+  - vertex coverage
+  - edge coverage
+  - connectivity (alll the bags that contain any one vertex $v$ hang from a subtree of $T$)
+]
+
+Note that tree-width is preserved under taking minors (can be explictly checked). This implies ${G, "tw"(G) <= k}$ for any fixed $k$ is a minor closed family.
+
+#thm[
+$
+"tw"(K_(n)) = n-1
+$]
+#proof[
+  #defn[
+  We say a set system has Helly property if in universe $cal(U)$, the set system $S_i subset.eq 2^(cal(U))$.
+
+  If for every $i != j$, $S_i inter S_j != emptyset$ then $inter.big_(i=1)^n S_i != emptyset$.
+  ]
+
+  Consider a tree $T$. We claim the vertex set of the subtree of the tree have the Helly Property.
+
+  Now if we set up $S_i = {"bags in tree decomposition containing" v_i}$. By edge coverage, the intersection is non-empty between any two and hence, we can find an intersection which has to have all the vertices. Thus, tree-width is $n-1$.
+
+  Alternatevly, consider that we have $2$ or more nodes in the tree decomposition. Then, let a parent $p$ have a leaf $l$. If $B_p supset.eq B_l$, delete $l$.
+
+  If not, then $exists v "s.t." v in B_l, v in.not B_p$, then all neighbors of $v$ have to be in $B_l$ by connectivity. Thus, $B_l$ has width $n-1$.
+]
+
+A grid of $k times k$ can be show to have treewidth $k$. Hence, in some way, cliques and grids obstruct small treewidths.
+
+#definition(title: "Seperation")[
+  A sepearation of a graph $G$ is a pair $(Y, Z)$ of vertex subsets with:
+  - $Y union Z = V(G)$
+  - no edge in $G$ between $Y backslash Z$ and $Z backslash Y$.
+
+Then $Y inter Z$ is the corresponding seperator.
+]
+
+Let $(T, {B_t}_(t in V(T)))$ be a tree decomposition of $G$ and let $a b$ be an edge of $T$. $T - a b$ is $2$ trees. $T_a in.rev a$ and $T_b in.rev b$.
+
+Let $V_a$ be the union of bags of $T_a$, $V_b$ that of $T_b$.
+
+Then: 
+#thm[$(V_a, V_b)$ is a seperation of $G$ with seperator $B_a inter B_b$.]
+#proof[
+Notice, $V_a union V_b = V(G)$ by vertex coverage.
+
+If $u in V_a backslash V_b$ and $v in V_b backslash V_a$. Note, $u$ must have it's entire subtree in $T_a$ as otherwise $u in V_a backslash V_b$ would be false. Similarly for $v$.
+
+Thus, $u, v$ can't share a bag. Thus, $u v in.not E(G)$.
+
+Thus, $(V_a, V_b)$ is a seperation of $G$ with seperator $B_a inter B_b$.
+]
+
+Let $t$ be a node of $T$ and let $T_1, T_2, dots, T_l$ be the components of $T - t$. For every $i != j$, every path in $G$ from vertex in that apprears only in the bags of $T_i$, to a vertex $v$ that appears only in the bags of $T_j$, passes through $B_i$.
+
+#thm[If $"tw"(G) <= k$ then $G$ has a vertex of degree $<= k$.]
+#proof[
+  #todo[easy-peasy!]
+]
+
+#cor[
+  Graphs of tree-width $<= k$ are $<= k$ degenerate, $k+1$-colorable and have atmost $k n$ edges.
+]
+
+Note, this tells that even if our algorihtm has edges in runtime, we can still talk about it in terms of vertices (as number of edges is linear in $n$) given bounded tree-width.
+
+Note, this doesn't go the other way. A simple counter example is the grid graph which is $2$-degenerate but doesn't have bounded tree-width.
+
+Finding the tree decomposition is NP complete. Formally, we define this problem as given $G$ and $k$, we have an algorithm that finds the tree decomposition of width $<= k$ (or a bit more) or report $"tw"(G)>k$.
+
+In $1991$, it was solved $<= k$ in $O^*(2^(O(k^3)))$. This would crash on $k = 3$(!)
+
+In $2016$, it was solved for $<= 5k + 4$ in $O^*(2^(O(k)))$.
+
+In $2021$, it was solved for $<= 2k+1$ in $O^*(2^(O(k)))$.
+
+And in $2023$, it was solved for $<= k$ in $O^*(2^(O(k^2)))$.
