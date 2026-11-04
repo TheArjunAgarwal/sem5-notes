@@ -1550,12 +1550,75 @@ Note, this doesn't go the other way. A simple counter example is the grid graph 
 
 Finding the tree decomposition is NP complete. Formally, we define this problem as given $G$ and $k$, we have an algorithm that finds the tree decomposition of width $<= k$ (or a bit more) or report $"tw"(G)>k$.
 
-In $1991$, it was solved $<= k$ in $O^*(2^(O(k^3)))$. This would crash on $k = 3$(!)
+In 1991, it was solved $<= k$ in $O^*(2^(O(k^3)))$. This would crash on $k = 3$(!)
 
-In $2016$, it was solved for $<= 5k + 4$ in $O^*(2^(O(k)))$.
+In 2016, it was solved for $<= 5k + 4$ in $O^*(2^(O(k)))$.
 
-In $2021$, it was solved for $<= 2k+1$ in $O^*(2^(O(k)))$.
+In 2021, it was solved for $<= 2k+1$ in $O^*(2^(O(k)))$.
 
-And in $2023$, it was solved for $<= k$ in $O^*(2^(O(k^2)))$.
+And in 2023, it was solved for $<= k$ in $O^*(2^(O(k^2)))$.
 
 Open problems: We don't know if Planar tree-width is NP hard..
+
+#todo[
+  Vertex cover parametrized by Tree Width.
+]
+
+== Courcelle's Theorem
+
+
+#example(title: "First Order Logic")[
+   Given an underlying set be the vertices of graph $G$. $"adj"(u,v) = "True"$ if $u v in E$ and $"false"$ otherwise.
+
+   $forall u exists v "adj"(u,v)$ is first order form of 'there is no isolated vertex'.
+]
+
+#example(title: "3 Colorability in Prop Logic")[
+  Given graph $G$, set up the variables for vertex $v in V$ and color $i in {1,2,3}$; let $x_(v,i) = "true" <==>$ $v$ gets color $i$.
+
+  Then $G$ is 3-colorable $<==>$ the following is satifiable:
+  $
+  (and.big_(v in V(G)) (x_(v,1) or x_(v,2) or x_(v,3))) and and.big_(u v in E(G)) (and.big_(i=1)^3 (not x_(u,i) or not x_(v, i)))
+  $
+]
+
+#definition(title: "Second Order Logic")[
+  Variables can now refer to relation over the domain.
+]
+
+#definition(title: "Monadic Second Order Logic")[
+  It restircts Second Order Logic by restraining us to only talk about unery (aka subsets) relation.
+]
+
+#example(title: "MSO")[
+  Given a graph $G$ and predicate $"adj"(u,v) = u v in G$.
+
+  $
+  "reach"(u,v) = forall_X [(u in X and and.big_x and.big_y ((x in X and "adj"(x,y)) => y in X)) => v in X]
+  $
+  where $X$ rages over subsets of $V(G)$ and $u,v,x,y$ over the elements of $V(G)$.
+
+  $
+  "connected"(G) : forall_(x, y) "reach"(x,y)
+  $
+]
+
+$"MSO"_2$ allows us to quantify only over edges, vertices, set of vertices and edges.
+
+#example[
+  $X subset.eq V(G)$
+  $
+  "indSet"(X) = or.big_(u, v in X) not "adj"(u,v)
+  $
+  
+  $
+  "3-Col"(X) = "kabhi toh likh hi dunga :|"
+  $
+]
+
+#thm[
+  Every graph problem that can be expressed in $"MSO"_2$ as a formula $phi$ can be solved in time $f("tw"(G), |phi|) dot O(n)$ on graph $G$ with $n$ vertices.
+]
+
+Sadly, $f$ is non-elemntary and fast growing so this is not practical, other than putting problems into FPT.
+
