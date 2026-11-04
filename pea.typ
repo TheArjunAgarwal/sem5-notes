@@ -1620,5 +1620,4 @@ $"MSO"_2$ allows us to quantify only over edges, vertices, set of vertices and e
   Every graph problem that can be expressed in $"MSO"_2$ as a formula $phi$ can be solved in time $f("tw"(G), |phi|) dot O(n)$ on graph $G$ with $n$ vertices.
 ]
 
-Sadly, $f$ is non-elemntary and fast growing so this is not practical, other than putting problems into FPT.
-
+Sadly, $f$ is non-elemntary and fast growing so this is not practical, other than putting problems into FPT. Here non-elementary means that no tower of exponential bounds $f$. So it is really not practical and it is a classification tool.
