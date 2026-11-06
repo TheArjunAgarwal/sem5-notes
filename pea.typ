@@ -1621,3 +1621,99 @@ $"MSO"_2$ allows us to quantify only over edges, vertices, set of vertices and e
 ]
 
 Sadly, $f$ is non-elemntary and fast growing so this is not practical, other than putting problems into FPT. Here non-elementary means that no tower of exponential bounds $f$. So it is really not practical and it is a classification tool.
+
+== Diameter
+Let $G$ be connected graph with diameter $D$ ($"diameter" = max_((x,y) in V times V) "dist"(x,y)$).
+
+#lem[
+If $G$ has a vertex cover of size $<= k$ then $D <= 2k + 1$
+]
+#proof[
+#todo[]
+]
+
+#lem[
+  If $G$ has a dominating set of size $<= k$, then $D <= 3k + 1$
+]
+#proof[
+  #figure(image("pea-images/dominating-diameter.png"))
+
+  Note, no member of the dominating set may dominate more than $3$ vertices of the path $u ~> v$ (otherwise, we can short circuit).
+
+  Thus, $D <= 3k + 1$.
+]
+
+If $"tw"(G) = t$, we can solve vertex cover of $(G, k)$ in time $O^*(2^t)$.
+
+Can we combine this result to find a vertex cover?
+
+We would like a result along the lines: If diameter $<= D$ then $"tw"(G) <= f(D)$.
+
+Sadly this doesn't hold in general graph. A clique has diameter $1$ but $"tw" = n - 1$.
+
+But, the story is different on planar graphs.
+
+#thm(title: "The Diameter-Treewidth property of Planer Graphs")[
+  A connected planar graph $G$ of diameter $D$, has tree width at most $3 D$, and a tree decomposition of $G$ with width $<= 3D$ can be computed in polynomial time. 
+]
+
+#definition(title: "Planar Dominating Set")[
+  *Input:* Connected planar graph $G$, $k in NN$.
+
+  *Parameter:* $k$
+
+  *Question:* Is there a set $S subset.eq V(G)$, $|S| <= k$, such that $N[S] = V(G)$?
+]
+
+#psudo(title: "Planar Dominating Set")[
+  + Find the diameter $D$ of $G$.
+    + If $D >= 3k + 1$ return No
+  + $D <= 3k +1$, find a tree decomposition of width $<= 9k + 3$
+  + Solve using $O^*(3^t)$ DP
+]
+
+This is $O^*((3^9)^k)$ solution. Clearly, this just gives the classification (and is not practical).
+
+The diameter is sort of a linear object. Would maybe looking at a 2-D object help more?
+
++ A $t times t$ grid has tree width exactly $t$.
++ If $G$ has a $t times t$ grid as a minor, then $"tw"(G) >= t$
+
+#thm(title: "Robertson, Seymour, Chekuvi, Chuzey, Tom")[
+  There is a polynomial function $g$ such that every graph of treewidth $> g(t)$ contains the $t times t$ grid as a minor.
+  - Robertson, Seymour: astronomically large $g$
+  - R, S and Thomas: $g = 2^(O(t^5))$
+  - CRT: $g(t) = O(t^9 "polylog"(t))$
+  - $g(t) = Omega(t^2 log t)$
+]
+
+The last is 'tight' in the sense we can show some graphs need $t^2 log t$.
+
+#thm[
+R,S,T, Gu, Fomok showed that for every planar grph with treewidth $>= 9t/2$, has the $t times t$ grid as a minor.
+
+For every $epsilon > 0$, there is an $O(n^2)$ algorithm that given planar $G$ finds a tree decomposition of $G$ with width $<= (9/2 + epsilon) t$ or a $t times t$ grid minor.
+]
+
+#cor[
+Let $G$ be a planar graph on $n$ vertices, then $"tw"(G) <= 9/2 ceil(sqrt(n))$.
+]
+
+
+This gives us sub-exponential algorithms wrt $n$ for anything that was exponential wrt treewidth.
+
+Planar Vertex cover:
++ Every vertex cover of the $t times t$ grid has size $>= floor(t^2/2)$.
++ We can solve vertex cover in $O^*(2^t)$ time given a tree decomposition of width $t$.
++ If $H$ is a minor of $G$, then $|"VC"(H)| <= |"VC"(G)|$.
+
+So putting $1$ and $3$ together, If$|"VC"(G)| <= k$ then $G$ has no $t times t$ grid minot with $floor(t^2/2) > k$.
+
+How do we combine this to form an algorithm?
+#psudo[
+  + Let $t = sqrt(2k) + 1$
+  + Look for large grid minor of $G$
+  + If $G$ has a $t times t$ grid minor, return No
+  + Else: tree decomposition of width $O(t) = O(sqrt(k))$
+  + Tree Width DP: $O^*(2^(O(sqrt(k))))$.
+]
