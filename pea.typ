@@ -1717,3 +1717,100 @@ How do we combine this to form an algorithm?
   + Else: tree decomposition of width $O(t) = O(sqrt(k))$
   + Tree Width DP: $O^*(2^(O(sqrt(k))))$.
 ]
+
+= Hardness
+#table(
+  columns: 3,
+  [*What we show*], [*What it rules out*], [*Assuming*],
+  [Para NP Hard], [even an XP algorihtm], [P $!=$ NP],
+  [W[1], W[2], W[t] hard], [FPT, kernals], [FPT $!=$ W[1]],
+  [FPT, no polynomial kernals], [polynomial kernels], [NP $subset.eq.not$ coNP/Poly ($equiv$ CoNP $subset.eq.not$ NP/Poly)],
+  [Polynomial kernals at best $O(k^c)$], [kernals of size $O(k^(c - epsilon))$], [NP $subset.eq.not$ coNP/Poly ($equiv$ CoNP $subset.eq.not$ NP/Poly)],
+  [linear kernals, size $<= alpha k$], [Kernals of size $(alpha - epsilon) k$], [P $!=$ NP]
+)
+#example[
+  Consider $k$ path problem with instances $(G_1, k), dots, (G_t, k)$ can be reduced in polytime to $(G, k')$ where $G$ is union of $G_i$ and $k' <= k$.
+
+  If $(G,k')$ is YES $<==>$ at least one of $(G_i, k)$ is YES.
+
+  This implies $k$-Path has no poly kernals unless CoNP $subset.eq$ NP/Poly.
+
+  The argument is not obvious and took a paper but the idea given is or combining and allows us to show hardness of kernalization. Will look at it in more detail later.
+]
+
+#definition(title: "Parametrized Reduction")[
+  A _parametrized reduction_ from A to B is an algorihtm that maps each instance of $(x,k)$ of A to an instance $(x',k')$ of B, such that:
+  - the reduction algorihtm runs in $O^*(f(k))$ for some computable $f$.
+  - $|x'| <= "poly"(|x|) f(k)$ for some computable $f$.
+  - $k' <= g(k)$ for some computable $g$.
+  - $(x,k)$, YES in A $<==>$ $(x',k')$, YES in B
+]
+\
+#conj(title: "The W Hierarchy")[
+  $
+  "FPT" subset.eq W[1] subset.eq W[2] dots subset.eq "XP"
+  $
+]
+We know $"FPT" != "XP"$ as a corollary of Time Hierarchy Theorem. We just don't know where the seperation happens. The current assumption is:  $"FPT" subset.neq W[1] subset.neq W[2] dots subset.neq "XP"$.
+
+#remark[
+  W stands for 'Weft' which are the horizontal threads in loom. The verticle threads are stationary and the horizontal ones move.
+
+  We get this term from *boolean circuits*.
+
+  A boolean circuit#footnote["Arvind will chase me out of this place if he hears me introduce boolean circuits like this" - Prof. Philip] is a directed acyclic graph where every node is labeled with $and$ or $or$.
+
+  There is also one output node and all the leaves are the input nodes.
+
+  The depth is max distance from leaf to output.
+
+  The fan in of a node is indegree/number of inputs. We call nodes with unbounded fan-in 'large' and others 'small'.
+
+  Now, weft is the minimum number of large nodes on any path.
+]
+
+#definition(title: "Weighted Circuit Satisfiability (WCS)")[
+  Given a circuit $C$, $k in NN$, does $C$ have a satisfying assingment of weight $k$ (that is with exactly $k$ input gates set to $1$)?
+
+  Parameter: $k$
+]
+
+For $t in NN$, $W[t]$ is the set of all parametrized reduction to WCS, where the reduced instance has weft atmost $t$ and depth at most some constant.
+
+Sort of: weight $k$ is equivalent to choose $k$ things from the input and weft is how many 'unbounded checks' do we need to check is choice?
+
+#example(title: "Independent Set")[
+  One input $x_v$ per vertex. $x_v = 1$ means $v$ is chosen in the independent set.
+
+  We can check this as:
+  $
+  and.big_(u v in E(G)) (not x_u or not x_v)
+  $
+
+  #todo[draw]
+
+  Notice, there is only one unbounded node in this circuit. Thus, any path has weft $1$. Thus, Independent Set $in W[1]$.
+
+  We can also show independent set is $W[1]$-Hard (that is any weft 1 circuit can be reduced to independent set).
+]
+
+#example(title: "Dominating Set")[
+  $x_v = 1 <==>$ $v$ is in the dominating set.
+
+  We can check this as:
+  $
+  and.big_(v in V) or.big_(u in N[v]) x_u
+  $
+
+  #todo[draw]
+
+  This clearly has weft 2.
+
+  And as it turns out, Dominating Set is $W[2]$-hard as well.
+]
+
+While most of the evidence for why $W[1]$ is not in FPT is just 'smart' people have tried and failed, there is 1 piece of better evidence.
+
+In 1997, it was shown that Turing Machine Quick Acceptence (given a turing machine $T$, $k in NN$ and input $i$; does $T$ accept $i$ in $k$ steps?) is $W[1]$ hard. As the turing machine could be non-deterministic, we sort of belive it is not in FPT.
+
+Finally, till a few weeks ago, ETH implies $"FPT" subset.neq W[1]$ but now that ETH is false, we don't know much.
